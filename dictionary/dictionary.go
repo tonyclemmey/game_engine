@@ -3,19 +3,19 @@ Package dictionary provides an interface to a dictionary with fancy features
 such as complex letter frequency.
 
 Author: Justin Cook <jhcook@gmail.com>
- */
+*/
 
 package dictionary
 
 import (
+	"bufio"
 	"log"
 	"os"
-	"bufio"
 )
 
 type dictionary struct {
-	word string
-	ci uint32
+	word  string
+	ci    uint32
 	words []string
 }
 
@@ -39,6 +39,7 @@ func readLines(path string) ([]string, error) {
 
 func NewDictionary(path string) *dictionary {
 	dict := new(dictionary)
+	dict.ci = 1000
 	if len(path) == 0 {
 		path = "/usr/share/dict/words"
 	}
