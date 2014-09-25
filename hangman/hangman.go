@@ -63,7 +63,14 @@ func NewHangman() *hangman {
 		Right:  make([]rune, len(wrd)),
 		Wrong:  make([]rune, 0, 256),
 		Game:   theBoys.Games,
-		Timer:  time.NewTimer(time.Second * 300)}
+		Timer:  time.NewTimer(time.Second * 10)}
+	go func() {
+		<-game.Timer.C
+		log.Println("expired:", game.Game)
+		if _, ok := theBoys.Episode[game.Game]; ok {
+			delete(theBoys.Episode, game.Game)
+		}
+	}()
 	theBoys.Episode[theBoys.Games] = game
 	return game
 }
@@ -83,20 +90,6 @@ func (g *hangman) evalChar(chr string) bool {
 		g.Wrong = append(g.Wrong, letter)
 	}
 	return correct
-}
-
-func NewGame() *hangman {
-	h := NewHangman()
-	h.Timer = time.NewTimer(time.Second * 60)
-	// If the timer expires, remove the game from theBoys and free memory
-	go func() {
-		<-h.Timer.C
-		log.Println("expired:", h.Game)
-		if _, ok := theBoys.Episode[h.Game]; ok {
-			delete(theBoys.Episode, h.Game)
-		}
-	}()
-	return h
 }
 
 func Play(w http.ResponseWriter, r *http.Request) {
@@ -120,7 +113,7 @@ func Play(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// On each play, reset the timer
-	game.Timer.Reset(time.Second * 300)
+//	game.Timer.Reset(time.Second * 300)
 	// Use an anonymous structure to sanitize the data sent back.
 	answer := struct {
 		Word   string
