@@ -1,9 +1,9 @@
 package util
 
 import (
-	"unicode/utf8"
 	"bytes"
 	"strconv"
+	"unicode/utf8"
 )
 
 func StringToRuneArray(str string) []rune {
