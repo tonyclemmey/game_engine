@@ -19,10 +19,6 @@ type Dictionary struct {
 	Words []string
 }
 
-type MyString string
-
-type MyRune []rune
-
 // readLines reads a whole file into memory
 // and returns a slice of its lines.
 func readLines(path string) ([]string, error) {
