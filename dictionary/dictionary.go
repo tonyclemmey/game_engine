@@ -14,9 +14,9 @@ import (
 )
 
 type dictionary struct {
-	word  string
-	ci    uint32
-	words []string
+	Word  string
+	Ci    uint32
+	Words []string
 }
 
 // readLines reads a whole file into memory
@@ -39,16 +39,17 @@ func readLines(path string) ([]string, error) {
 
 func NewDictionary(path string) *dictionary {
 	dict := new(dictionary)
-	dict.ci = 1000
+	dict.Ci = 1000
 	if len(path) == 0 {
 		path = "/usr/share/dict/words"
 	}
-	dict.words, _ = readLines(path)
+	log.Println("dictionary.NewDictionary:", path)
+	dict.Words, _ = readLines(path)
 	return dict
 }
 
 func (d *dictionary) NextWord() string {
-	d.ci++
-	d.word = d.words[d.ci]
-	return d.word
+	d.Ci++
+	d.Word = d.Words[d.Ci]
+	return d.Word
 }
