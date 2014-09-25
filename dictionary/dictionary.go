@@ -13,7 +13,7 @@ import (
 	"os"
 )
 
-type dictionary struct {
+type Dictionary struct {
 	Word  string
 	Ci    uint32
 	Words []string
@@ -28,7 +28,6 @@ func readLines(path string) ([]string, error) {
 		return nil, err
 	}
 	defer file.Close()
-	log.Println("dictionary.readLines open:", path)
 	var lines []string
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -37,8 +36,8 @@ func readLines(path string) ([]string, error) {
 	return lines, scanner.Err()
 }
 
-func NewDictionary(path string) *dictionary {
-	dict := new(dictionary)
+func NewDictionary(path string) *Dictionary {
+	dict := new(Dictionary)
 	dict.Ci = 1000
 	if len(path) == 0 {
 		path = "/usr/share/dict/words"
@@ -48,7 +47,7 @@ func NewDictionary(path string) *dictionary {
 	return dict
 }
 
-func (d *dictionary) NextWord() string {
+func (d *Dictionary) NextWord() string {
 	d.Ci++
 	d.Word = d.Words[d.Ci]
 	return d.Word

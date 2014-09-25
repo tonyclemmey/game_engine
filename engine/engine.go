@@ -18,6 +18,8 @@ func apiHandlerFunc(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func main() {
+	// Create the singleton "men" in hangman to keep track of all hangman episodes
+	hangman.NewMen()
 	//    http.Handle("/list", apiHandlerFunc())
 	//    http.Handle("/new", apiHandlerFunc())
 	//    http.Handle("/status", apiHandlerFunc())
