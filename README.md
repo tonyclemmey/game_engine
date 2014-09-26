@@ -11,7 +11,7 @@ Language
 
 The server is implemented in Go using HTTP and JSON. To build, checkout the
 code, navigate to the 'engine' and `go install`. If your Go environment is
-configured properly, it will work by `$GOROOT/bin/engine`. The process listens
+configured properly, it will work by `$GOPATH/bin/engine`. The process listens
 on port 3000 by default, but this can be changed in the code.
 
 Configuration
