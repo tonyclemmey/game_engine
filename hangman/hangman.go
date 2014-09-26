@@ -28,6 +28,9 @@ type hangman struct {
 	Right  []rune
 	Wrong  []rune
 	Game   uint64
+	TwoP   bool
+	P1cred string
+	P2cred string
 	Timer  *time.Timer
 }
 
@@ -35,6 +38,7 @@ type hangman struct {
 type Message struct {
 	Cmd  string
 	Gid  uint64
+	Play string
 	Auth string
 }
 
@@ -96,24 +100,34 @@ func (g *hangman) evalChar(chr string) bool {
 }
 
 func Play(w http.ResponseWriter, r *http.Request) {
-	// Decode the JSON
-	decoder := json.NewDecoder(r.Body)
 	var msg Message
 	var game *hangman
 	var ok bool
+	var answer interface{} = nil
+	// Decode the JSON
+	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&msg); err != nil {
 		bytes, _ := json.Marshal(err)
 		log.Println("hangman.Play.Decode:", err)
 		w.Write(bytes)
 		return
 	}
-	if len(msg.Cmd) > 0 && msg.Gid > 0 { //&& len(msg.Auth) > 0 {
-		if game, ok = theBoys.Episode[msg.Gid]; ok {
-			// On each play, reset the timer
-			game.Timer.Reset(time.Second * 300)
-			log.Println(game)
+	if len(msg.Cmd) > 0 && msg.Gid > 0 && len(msg.Play) > 0 { //&& len(msg.Auth) > 0 {
+		;
+	} else if len(msg.Cmd) > 0 && msg.Gid > 0 { //&& len(msg.Auth) > 0 {
+		if msg.Cmd == "STATUS" {
+			if game, ok = theBoys.Episode[msg.Gid]; ok {
+				// On each play, reset the timer
+				game.Timer.Reset(time.Second * 300)
+			} else {
+				answer = struct {
+						Error string
+					}{"game does not exist"}
+			}
 		} else {
-			return
+			answer = struct {
+				Error string
+				}{"unknown command"}
 		}
 	} else if len(msg.Cmd) > 0 {
 		if msg.Cmd == "NEW" {
@@ -122,12 +136,16 @@ func Play(w http.ResponseWriter, r *http.Request) {
 	} else {
 		return
 	}
-	// Use an anonymous structure to sanitize the data sent back.
-	answer := struct {
-		Word   string
-		Missed []rune
-		Game   uint64
-	}{game.Word, game.Wrong, game.Game}
+	if answer == nil {
+		// Use an anonymous structure to sanitize the data sent back.
+		answer = struct {
+			Word   string
+			Curr   []rune
+			Missed []rune
+			Game   uint64
+		}{game.Word, game.Right, game.Wrong, game.Game}
+	}
+	log.Println(game)
 	// Send the result down the wire.
 	if bytes, err := json.Marshal(answer); err == nil {
 		log.Println(string(bytes))
