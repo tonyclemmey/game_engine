@@ -110,6 +110,8 @@ func (g *hangman) evalChar(chr string) bool {
 func (g *hangman) checkAuth(gid uint64, cred string) *hangman {
 	if game, ok := theBoys.Episode[gid]; ok {
 		if game.P1cred == cred {
+			// On each play, reset the timer
+			game.Timer.Reset(time.Second * 300)
 			return game
 		}
 	}
@@ -131,7 +133,9 @@ func Play(w http.ResponseWriter, r *http.Request) {
 	}
 	if len(msg.Cmd) > 0 && msg.Gid > 0 && len(msg.Play) > 0 && len(msg.Auth) > 0 {
 		if game = game.checkAuth(msg.Gid, msg.Auth); game != nil {
-			game.evalChar(msg.Play)
+			if msg.Cmd == "P1T" {
+				game.evalChar(msg.Play)
+			}
 		} else {
 			answer = struct {
 				Error string
@@ -141,8 +145,7 @@ func Play(w http.ResponseWriter, r *http.Request) {
 		if _, ok = theBoys.Episode[msg.Gid]; ok {
 			if game = game.checkAuth(msg.Gid, msg.Auth); game != nil {
 				if msg.Cmd == "STATUS" {
-					// On each play, reset the timer
-					game.Timer.Reset(time.Second * 300)
+					log.Println(game)
 				} else {
 					answer = struct {
 						Error string
@@ -184,7 +187,6 @@ func Play(w http.ResponseWriter, r *http.Request) {
 			Game   uint64
 		}{game.Word, game.Right, game.Wrong, game.Game}
 	}
-	log.Println(game)
 	// Send the result down the wire.
 	if bytes, err := json.Marshal(answer); err == nil {
 		log.Println(string(bytes))
