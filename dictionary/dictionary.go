@@ -42,7 +42,6 @@ func NewDictionary(path string) *Dictionary {
 	if len(path) == 0 {
 		path = "/usr/share/dict/words"
 	}
-	log.Println("dictionary.NewDictionary:", path)
 	dict.Words, _ = readLines(path)
 	return dict
 }

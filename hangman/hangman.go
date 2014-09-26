@@ -61,16 +61,24 @@ func NewMen() {
 
 // Create a new game of hangman, add it to the singleton 'theBoys' and return
 // to the caller.
-func NewHangman() *hangman {
+func NewHangman(np int) *hangman {
+	var p2 string
 	dict.Ci = uint32(rand.Intn(len(dict.Words)))
 	wrd := dict.NextWord()
 	theBoys.Games++
+	if np == 2 {
+		p2 = util.Rand_str(64)
+	} else {
+		p2 = ""
+	}
 	game := &hangman{Word: wrd,
 		WrdUni: util.StringToRuneArray(wrd),
 		Right:  make([]rune, len(wrd)),
 		Wrong:  make([]rune, 0, 256),
 		Game:   theBoys.Games,
-		Timer:  time.NewTimer(time.Second * 10)}
+		P1cred: util.Rand_str(64),
+		P2cred: p2,
+		Timer:  time.NewTimer(time.Second * 60)}
 	go func() {
 		<-game.Timer.C
 		log.Println("expired:", game.Game)
@@ -99,10 +107,19 @@ func (g *hangman) evalChar(chr string) bool {
 	return correct
 }
 
+func (g *hangman) checkAuth(gid uint64, cred string) *hangman {
+	if game, ok := theBoys.Episode[gid]; ok {
+		if game.P1cred == cred {
+			return game
+		}
+	}
+	return nil
+}
+
 func Play(w http.ResponseWriter, r *http.Request) {
 	var msg Message
 	var game *hangman
-	var ok bool
+	var ok bool = false
 	var answer interface{} = nil
 	// Decode the JSON
 	decoder := json.NewDecoder(r.Body)
@@ -112,26 +129,48 @@ func Play(w http.ResponseWriter, r *http.Request) {
 		w.Write(bytes)
 		return
 	}
-	if len(msg.Cmd) > 0 && msg.Gid > 0 && len(msg.Play) > 0 { //&& len(msg.Auth) > 0 {
-		;
-	} else if len(msg.Cmd) > 0 && msg.Gid > 0 { //&& len(msg.Auth) > 0 {
-		if msg.Cmd == "STATUS" {
-			if game, ok = theBoys.Episode[msg.Gid]; ok {
-				// On each play, reset the timer
-				game.Timer.Reset(time.Second * 300)
-			} else {
-				answer = struct {
+	if len(msg.Cmd) > 0 && msg.Gid > 0 && len(msg.Play) > 0 && len(msg.Auth) > 0 {
+		if game = game.checkAuth(msg.Gid, msg.Auth); game != nil {
+			game.evalChar(msg.Play)
+		} else {
+			answer = struct {
+				Error string
+			}{"unauthorized"}
+		}
+	} else if len(msg.Cmd) > 0 && msg.Gid > 0 && len(msg.Auth) > 0 {
+		if _, ok = theBoys.Episode[msg.Gid]; ok {
+			if game = game.checkAuth(msg.Gid, msg.Auth); game != nil {
+				if msg.Cmd == "STATUS" {
+					// On each play, reset the timer
+					game.Timer.Reset(time.Second * 300)
+				} else {
+					answer = struct {
 						Error string
 					}{"game does not exist"}
+				}
+			} else {
+				answer = struct {
+					Error string
+				}{"unauthorized"}
 			}
 		} else {
 			answer = struct {
 				Error string
-				}{"unknown command"}
+			}{"unknown command"}
 		}
 	} else if len(msg.Cmd) > 0 {
 		if msg.Cmd == "NEW" {
-			game = NewHangman()
+			game = NewHangman(1)
+			answer = struct {
+				Curr   []rune
+				Missed []rune
+				Game   uint64
+				Cred   string
+			}{game.Right, game.Wrong, game.Game, game.P1cred}
+		} else {
+			answer = struct {
+				Error string
+			}{"unknown command"}
 		}
 	} else {
 		return
