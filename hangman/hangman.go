@@ -21,6 +21,7 @@ import (
 var theBoys *men = nil
 var dict *dictionary.Dictionary = nil
 
+// This is used to represent each game
 type hangman struct {
 	Word   string
 	WrdUni []rune
@@ -30,12 +31,14 @@ type hangman struct {
 	Timer  *time.Timer
 }
 
+// This is used as the structure for JSON decoding
 type Message struct {
 	Cmd  string
 	Gid  uint64
 	Auth string
 }
 
+// This is a structure that holds references to each game instance
 type men struct {
 	Games   uint64
 	Episode map[uint64]*hangman
@@ -97,23 +100,28 @@ func Play(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var msg Message
 	var game *hangman
+	var ok bool
 	if err := decoder.Decode(&msg); err != nil {
+		bytes, _ := json.Marshal(err)
 		log.Println("hangman.Play.Decode:", err)
+		w.Write(bytes)
 		return
 	}
-	if len(msg.Cmd) > 0 && msg.Gid > 0 && len(msg.Auth) > 0 {
-		if game, ok := theBoys.Episode[msg.Gid]; ok {
+	if len(msg.Cmd) > 0 && msg.Gid > 0 { //&& len(msg.Auth) > 0 {
+		if game, ok = theBoys.Episode[msg.Gid]; ok {
+			// On each play, reset the timer
+			game.Timer.Reset(time.Second * 300)
 			log.Println(game)
 		} else {
 			return
 		}
-	} else if msg.Cmd == "NEW" {
-		game = NewHangman()
+	} else if len(msg.Cmd) > 0 {
+		if msg.Cmd == "NEW" {
+			game = NewHangman()
+		}
 	} else {
 		return
 	}
-	// On each play, reset the timer
-//	game.Timer.Reset(time.Second * 300)
 	// Use an anonymous structure to sanitize the data sent back.
 	answer := struct {
 		Word   string
@@ -125,6 +133,6 @@ func Play(w http.ResponseWriter, r *http.Request) {
 		log.Println(string(bytes))
 		w.Write(bytes)
 	} else {
-		log.Fatalln(err)
+		log.Println(err)
 	}
 }
