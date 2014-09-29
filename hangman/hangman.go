@@ -136,7 +136,7 @@ func (msg *Message) play() interface{} {
 				Missed []rune
 				Game   uint64
 				Cred   string
-			}{game.Cmd, game.Right, game.Wrong, game.Game, game.P1cred}yes
+			}{game.Cmd, game.Right, game.Wrong, game.Game, game.P1cred}
 
 	case "P1T", "P2T":
 		if _, ok = theBoys.Episode[msg.Gid]; ok {
