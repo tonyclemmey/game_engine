@@ -24,16 +24,16 @@ var dict *dictionary.Dictionary = nil
 
 // This is used to represent each game
 type hangman struct {
-	Word   string // Word represented as an ascii string
-	WrdUni []rune //
-	Right  []rune
-	Wrong  []rune
-	Game   uint64
-	Cmd    string
-	TwoP   bool
-	P1cred string
-	P2cred string
-	Timer  *time.Timer
+	Word   string      // Word represented as an ascii string
+	WrdUni []rune      // Word represented as unicode points
+	Right  []rune      // Correct tries
+	Wrong  []rune      // Incorrect tries
+	Game   uint64      // Game ID
+	Cmd    string      // Last destructive command used
+	TwoP   bool        // Is this a two-player game
+	P1cred string      // Credentials for player one
+	P2cred string      // Credentials for player two
+	Timer  *time.Timer // Timer to remove the game from memory
 }
 
 // This is used as the structure for JSON decoding
@@ -205,13 +205,12 @@ func Playhttp(w http.ResponseWriter, r *http.Request) {
 func Playws(ws *websocket.Conn) {
 	var answer interface{} = nil
 	var err error = nil
-	var msg Message //Message{Cmd: "NEW"}
+	var msg Message
 	for {
 		if err = websocket.JSON.Receive(ws, &msg); err != nil {
 			log.Println("Playws.websocket.JSON.Receive:", err)
 			break
 		}
-		log.Println("msg:", msg)
 		answer = msg.play()
 		if err := websocket.JSON.Send(ws, answer); err != nil {
 			log.Println("Playws.websocket.JSON.Send", err)
