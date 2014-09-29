@@ -8,6 +8,7 @@ Author: Justin Cook <jhcook@gmail.com>
 package hangman
 
 import (
+	"code.google.com/p/go.net/websocket"
 	"encoding/json"
 	"github.com/jhcook/game_engine/dictionary"
 	"github.com/jhcook/game_engine/util"
@@ -16,7 +17,6 @@ import (
 	"net/http"
 	"time"
 	"unicode/utf8"
-	"code.google.com/p/go.net/websocket"
 )
 
 var theBoys *men = nil
@@ -131,12 +131,12 @@ func (msg *Message) play() interface{} {
 	case "NEW":
 		game = NewHangman(1)
 		answer = struct {
-				Cmd    string
-				Curr   []rune
-				Missed []rune
-				Game   uint64
-				Cred   string
-			}{game.Cmd, game.Right, game.Wrong, game.Game, game.P1cred}
+			Cmd    string
+			Curr   []rune
+			Missed []rune
+			Game   uint64
+			Cred   string
+		}{game.Cmd, game.Right, game.Wrong, game.Game, game.P1cred}
 
 	case "P1T", "P2T":
 		if _, ok = theBoys.Episode[msg.Gid]; ok {
@@ -145,13 +145,13 @@ func (msg *Message) play() interface{} {
 				game.evalChar(msg.Play)
 			} else {
 				answer = struct {
-						Error string
-					}{"unauthorized"}
+					Error string
+				}{"unauthorized"}
 			}
 		} else {
 			answer = struct {
-					Error string
-				}{"unknown game id"}
+				Error string
+			}{"unknown game id"}
 		}
 
 	case "STATUS":
@@ -159,28 +159,27 @@ func (msg *Message) play() interface{} {
 			cmd = "STATUS"
 		} else {
 			answer = struct {
-					     Error string
-				     }{"unauthorized"}
+				Error string
+			}{"unauthorized"}
 		}
 
 	default:
 		answer = struct {
-				     Error string
-			     }{"unknown command"}
+			Error string
+		}{"unknown command"}
 	}
 
 	if answer == nil {
 		// Use an anonymous structure to sanitize the data sent back.
 		answer = struct {
-				Cmd    string
-				Curr   []rune
-				Missed []rune
-				Game   uint64
-			}{cmd, game.Right, game.Wrong, game.Game}
+			Cmd    string
+			Curr   []rune
+			Missed []rune
+			Game   uint64
+		}{cmd, game.Right, game.Wrong, game.Game}
 	}
 	return answer
 }
-
 
 func Playhttp(w http.ResponseWriter, r *http.Request) {
 	var msg Message
@@ -220,4 +219,3 @@ func Playws(ws *websocket.Conn) {
 		}
 	}
 }
-
