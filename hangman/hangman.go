@@ -126,27 +126,23 @@ func (msg *Message) play() interface{} {
 	var game *hangman
 	var cmd string = ""
 	var ok bool = false
-	if len(msg.Cmd) > 0 && msg.Gid > 0 && len(msg.Play) > 0 && len(msg.Auth) > 0 {
-		if game = game.checkAuth(msg.Gid, msg.Auth); game != nil {
-			if msg.Cmd == "P1T" {
-				cmd = "P1T"
-				game.evalChar(msg.Play)
-			}
-		} else {
-			answer = struct {
-					Error string
-				}{"unauthorized"}
-		}
-	} else if len(msg.Cmd) > 0 && msg.Gid > 0 && len(msg.Auth) > 0 {
+
+	switch msg.Cmd {
+	case "NEW":
+		game = NewHangman(1)
+		answer = struct {
+				Cmd    string
+				Curr   []rune
+				Missed []rune
+				Game   uint64
+				Cred   string
+			}{game.Cmd, game.Right, game.Wrong, game.Game, game.P1cred}yes
+
+	case "P1T", "P2T":
 		if _, ok = theBoys.Episode[msg.Gid]; ok {
 			if game = game.checkAuth(msg.Gid, msg.Auth); game != nil {
-				if msg.Cmd == "STATUS" {
-					cmd = "STATUS"
-				} else {
-					answer = struct {
-							Error string
-						}{"game does not exist"}
-				}
+				cmd = "P1T"
+				game.evalChar(msg.Play)
 			} else {
 				answer = struct {
 						Error string
@@ -155,26 +151,24 @@ func (msg *Message) play() interface{} {
 		} else {
 			answer = struct {
 					Error string
-				}{"unknown command"}
+				}{"unknown game id"}
 		}
-	} else if len(msg.Cmd) > 0 {
-		if msg.Cmd == "NEW" {
-			game = NewHangman(1)
-			answer = struct {
-				    Cmd    string
-					Curr   []rune
-					Missed []rune
-					Game   uint64
-					Cred   string
-				}{game.Cmd, game.Right, game.Wrong, game.Game, game.P1cred}
+
+	case "STATUS":
+		if game = game.checkAuth(msg.Gid, msg.Auth); game != nil {
+			cmd = "STATUS"
 		} else {
 			answer = struct {
-					Error string
-				}{"unknown command"}
+					     Error string
+				     }{"unauthorized"}
 		}
-	} else {
-		return nil
+
+	default:
+		answer = struct {
+				     Error string
+			     }{"unknown command"}
 	}
+
 	if answer == nil {
 		// Use an anonymous structure to sanitize the data sent back.
 		answer = struct {
@@ -218,7 +212,7 @@ func Playws(ws *websocket.Conn) {
 			log.Println("Playws.websocket.JSON.Receive:", err)
 			break
 		}
-		log.Println(msg)
+		log.Println("msg:", msg)
 		answer = msg.play()
 		if err := websocket.JSON.Send(ws, answer); err != nil {
 			log.Println("Playws.websocket.JSON.Send", err)
