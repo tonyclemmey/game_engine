@@ -16,7 +16,9 @@ import (
 	"math/rand"
 	"net/http"
 	"time"
+	"unicode"
 	"unicode/utf8"
+	"strings"
 )
 
 var theBoys *men = nil
@@ -96,11 +98,11 @@ func NewHangman(np int) *hangman {
 func (g *hangman) evalChar(chr string) bool {
 	var correct bool = false
 	// Convert chr to rune
-	letter, _ := utf8.DecodeRuneInString(chr)
+	letter, _ := utf8.DecodeRuneInString(strings.ToLower(chr))
 	// See if rune is in the word
 	for i, v := range g.WrdUni {
-		if letter == v {
-			g.Right[i] = letter
+		if letter == unicode.ToLower(v) {
+			g.Right[i] = v
 			correct = true
 		}
 	}
@@ -137,6 +139,7 @@ func (msg *Message) play() interface{} {
 			Game   uint64
 			Cred   string
 		}{game.Cmd, game.Right, game.Wrong, game.Game, game.P1cred}
+		log.Println(game)
 
 	case "P1T", "P2T":
 		if _, ok = theBoys.Episode[msg.Gid]; ok {
