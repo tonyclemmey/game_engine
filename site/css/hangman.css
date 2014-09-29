@@ -1,0 +1,149 @@
+/*
+Hangman
+
+Author: Justin Cook
+Credits: Jeffri Hong
+*/
+
+html, body
+{
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+p
+{
+	margin: 0;
+	padding: 10px 20px 0;
+}
+#gallows {
+	position: absolute;
+	width: 25%;
+	height: 50%;
+	top: 10%;
+	left: 25%;
+}
+#gallows .top {
+	position: absolute;
+	width: 60%;
+	height: 1em;
+	background: #000;
+}
+#gallows .support {
+	position: absolute;
+	width: .5em;
+	height: 7em;
+	left: 2em;
+	background: #000;
+	-webkit-transform: rotate(-145deg);
+	-moz-transform: rotate(-145deg);
+}
+#gallows .hanger {
+	position: absolute;
+	width: 1em;
+	height: 3em;
+	left: 45%;
+	background: #000;
+}
+#gallows .upright {
+	width: 1em;
+	height: 100%;
+	background: #000;
+	position: absolute;
+}
+#gallows .bottom {
+	position: absolute;
+	top: 100%;
+	width: 100%;
+	height: 1em;
+	background: #000;
+	margin-left: -3em;
+}
+.stick
+{
+	top: 11%;
+	left: 47%;
+	width: .15em;
+	position: absolute;
+}
+.stick .head
+{
+	width: 2.5em;
+	height: 2.5em;
+	background: #fff;
+	border: .15em solid #000;
+	border-radius: 1.2em 1.2em;
+	-moz-border-radius: 1.25em 1.25em;
+	position: absolute;
+	top: 0;
+	left: 50%;
+	margin-left: -1.4em;
+	text-align: center;
+	line-height: 3em;
+    display: none;
+}
+.stick .body
+{
+	width: .15em;
+	height: 4em;
+	background: #000;
+	position: absolute;
+	top: 2.7em;
+	left: 50%;
+	margin-left: -.1em;
+    display: none;
+}
+.stick .part
+{
+	width: .15em;
+	height: 5em;
+	position: absolute;
+	//top: .2em;
+	left: 50%;
+	margin-left: -.1em;
+}
+.stick .part div
+{
+	height: 50%;
+	background: #000;
+}
+.stick .lefthand
+{
+	top: .2em;
+	-webkit-transform: rotate(-130deg);
+	-moz-transform: rotate(-130deg);
+    display: none;
+}
+
+.stick .righthand
+{
+	top: .2em;
+	-webkit-transform: rotate(130deg);
+	-moz-transform: rotate(130deg);
+    display: none;
+}
+
+.stick .leftfoot
+{
+	height: 7em;
+	top: 3em;
+	-webkit-transform: rotate(-160deg);
+	-moz-transform: rotate(-160deg);
+    display: none;
+}
+
+.stick .rightfoot
+{
+	height: 7em;
+	top: 3em;
+	-webkit-transform: rotate(160deg);
+	-moz-transform: rotate(160deg);
+    display: none;
+}
+.usrint {
+    position: absolute;
+    top: 65%;
+    left: 30%;
+}

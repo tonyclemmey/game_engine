@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!-- saved from url=(0047)http://richmond.cookgetsitdone.com/hangman.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <title>Hangman</title>
+	<link rel="stylesheet" type="text/css" href="./hangman2_files/hangman.css">
+    <!--[if IE]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body onload="" data-feedly-mini="yes" class=" hasGoogleVoiceExt">
+     <div id="gallows">
+        <div class="top"></div>
+		<div class="support"></div>
+		<div class="hanger"></div>
+		<div class="upright"></div>
+		<div class="bottom"></div>
+	      <div id="figure" class="stick">
+		    <div id="head" class="head" style="display: none;"></div>
+		    <div id="body" class="body" style="display: none;"></div>
+		    <div id="lefth" class="lefthand part" style="display: none;"><div></div></div>
+		    <div id="righth" class="righthand part" style="display: none;"><div></div></div>
+		    <div id="leftf" class="leftfoot part" style="display: none;"><div></div></div>
+		    <div id="rightf" class="rightfoot part" style="display: none;"><div></div></div>
+	    </div>
+	  </div>
+    <div class="usrint">
+        <p id="abstract">- - - - -</p>
+        <p>Guess a letter</p>
+        <input id="letter" maxlength="1" size="1">
+        <button id="myButton">Submit</button>
+        <button id="newGame">New Game</button>
+    </div>
+  
+	<script>
+        var MYGAME = {
+            killStages: ["", "head", "body", "lefth", "righth", "leftf", "rightf"],
+            curr:       [],
+            missed:     [],
+            game:       0, 
+            auth:       '',
+            execute:      function() {
+                if (this.missed.length > 0) {
+                    document.getElementById(this.killStages[this.missed.length]).style.display = "block";
+                }
+            },
+            reset:        function() {
+                var sk = this.killStages.slice(1, this.killStages.length)
+                for (i in sk) {
+                    document.getElementById(sk[i]).style.display = "none";
+                }
+            }
+        }
+    
+        document.getElementById("myButton").onclick = function() {
+            guess = document.getElementById("letter").value;
+            game = {Cmd: "P1T", Play: guess, Gid: MYGAME.game, Auth: MYGAME.auth};
+            console.log(game);
+            wsocket.send(JSON.stringify(game));
+        };
+
+        if ("WebSocket" in window) {
+            var wsocket = new WebSocket("ws://jcmbpro:3000/wshangman");
+            wsocket.onopen = function() {
+                newGame();
+            };
+            wsocket.onmessage = function (event) { 
+                var msg = JSON.parse(event.data);
+                switch (msg.Cmd) {
+                    case "NEW":
+                        MYGAME.auth = msg.Cred; 
+                        MYGAME.game = msg.Game;
+                        break;
+                }
+                MYGAME.curr = function() { 
+                    var tmp = [];
+                    for (i in msg.Curr) {
+                        tmp[i] = String.fromCharCode(msg.Curr[i])
+                    }
+                    return tmp;
+                }();
+                MYGAME.missed = msg.Missed;
+                document.getElementById("abstract").innerHTML = function() {
+                    var tmp = [];
+                    for (i in MYGAME.curr) {
+                        if (MYGAME.curr[i] === "\00") {
+                            tmp[i] = '-';
+                        } else {
+                            tmp[i] = MYGAME.curr[i];
+                        }
+                    }
+                    return tmp;
+                }().join(' ');
+                MYGAME.execute();
+            };
+            wsocket.onclose = function() { 
+                console.log("Connection is closed..."); 
+            };
+        } else {
+            var wsocket = ''
+        }
+
+        function newGame() {
+            wsocket.send(JSON.stringify({Cmd: "NEW"}));
+            MYGAME.reset();
+        }
+
+        document.getElementById("newGame").onclick = newGame;
+	</script>
+
+<div id="feedly-mini" title="feedly Mini tookit"></div></body></html>
