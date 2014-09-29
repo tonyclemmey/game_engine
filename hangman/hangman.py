@@ -8,7 +8,7 @@ except ImportError as e:
     print(e)
     sys.exit(1)
 
-url = 'http://localhost:3000/hangman'
+url = 'http://jcmbpro:3000/hangman'
 
 hdrs = { 'content-type': 'application/json'}
 
@@ -22,6 +22,7 @@ payload2 = {
 
 try:
     resp = requests.post(url, data=json.dumps(payload1))
+    print(resp.json())
 except requests.packages.urllib3.exceptions.ProtocolError as e:
     print(e)
     sys.exit(2)
@@ -48,4 +49,4 @@ while len(wrong) < 7:
     try:
         wrong = resp.json()["Missed"]
     except KeyError as e:
-        print(Oops)
+        print("Oops")

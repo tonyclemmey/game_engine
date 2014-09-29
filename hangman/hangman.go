@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"time"
 	"unicode/utf8"
+	"code.google.com/p/go.net/websocket"
 )
 
 var theBoys *men = nil
@@ -23,11 +24,12 @@ var dict *dictionary.Dictionary = nil
 
 // This is used to represent each game
 type hangman struct {
-	Word   string
-	WrdUni []rune
+	Word   string // Word represented as an ascii string
+	WrdUni []rune //
 	Right  []rune
 	Wrong  []rune
 	Game   uint64
+	Cmd    string
 	TwoP   bool
 	P1cred string
 	P2cred string
@@ -76,6 +78,7 @@ func NewHangman(np int) *hangman {
 		Right:  make([]rune, len(wrd)),
 		Wrong:  make([]rune, 0, 256),
 		Game:   theBoys.Games,
+		Cmd:    "NEW",
 		P1cred: util.Rand_str(64),
 		P2cred: p2,
 		Timer:  time.NewTimer(time.Second * 60)}
@@ -118,10 +121,75 @@ func (g *hangman) checkAuth(gid uint64, cred string) *hangman {
 	return nil
 }
 
-func Play(w http.ResponseWriter, r *http.Request) {
-	var msg Message
+func (msg *Message) play() interface{} {
+	var answer interface{} = nil
 	var game *hangman
+	var cmd string = ""
 	var ok bool = false
+	if len(msg.Cmd) > 0 && msg.Gid > 0 && len(msg.Play) > 0 && len(msg.Auth) > 0 {
+		if game = game.checkAuth(msg.Gid, msg.Auth); game != nil {
+			if msg.Cmd == "P1T" {
+				cmd = "P1T"
+				game.evalChar(msg.Play)
+			}
+		} else {
+			answer = struct {
+					Error string
+				}{"unauthorized"}
+		}
+	} else if len(msg.Cmd) > 0 && msg.Gid > 0 && len(msg.Auth) > 0 {
+		if _, ok = theBoys.Episode[msg.Gid]; ok {
+			if game = game.checkAuth(msg.Gid, msg.Auth); game != nil {
+				if msg.Cmd == "STATUS" {
+					cmd = "STATUS"
+				} else {
+					answer = struct {
+							Error string
+						}{"game does not exist"}
+				}
+			} else {
+				answer = struct {
+						Error string
+					}{"unauthorized"}
+			}
+		} else {
+			answer = struct {
+					Error string
+				}{"unknown command"}
+		}
+	} else if len(msg.Cmd) > 0 {
+		if msg.Cmd == "NEW" {
+			game = NewHangman(1)
+			answer = struct {
+				    Cmd    string
+					Curr   []rune
+					Missed []rune
+					Game   uint64
+					Cred   string
+				}{game.Cmd, game.Right, game.Wrong, game.Game, game.P1cred}
+		} else {
+			answer = struct {
+					Error string
+				}{"unknown command"}
+		}
+	} else {
+		return nil
+	}
+	if answer == nil {
+		// Use an anonymous structure to sanitize the data sent back.
+		answer = struct {
+				Cmd    string
+				Curr   []rune
+				Missed []rune
+				Game   uint64
+			}{cmd, game.Right, game.Wrong, game.Game}
+	}
+	return answer
+}
+
+
+func Playhttp(w http.ResponseWriter, r *http.Request) {
+	var msg Message
 	var answer interface{} = nil
 	// Decode the JSON
 	decoder := json.NewDecoder(r.Body)
@@ -131,62 +199,7 @@ func Play(w http.ResponseWriter, r *http.Request) {
 		w.Write(bytes)
 		return
 	}
-	if len(msg.Cmd) > 0 && msg.Gid > 0 && len(msg.Play) > 0 && len(msg.Auth) > 0 {
-		if game = game.checkAuth(msg.Gid, msg.Auth); game != nil {
-			if msg.Cmd == "P1T" {
-				game.evalChar(msg.Play)
-			}
-		} else {
-			answer = struct {
-				Error string
-			}{"unauthorized"}
-		}
-	} else if len(msg.Cmd) > 0 && msg.Gid > 0 && len(msg.Auth) > 0 {
-		if _, ok = theBoys.Episode[msg.Gid]; ok {
-			if game = game.checkAuth(msg.Gid, msg.Auth); game != nil {
-				if msg.Cmd == "STATUS" {
-					log.Println(game)
-				} else {
-					answer = struct {
-						Error string
-					}{"game does not exist"}
-				}
-			} else {
-				answer = struct {
-					Error string
-				}{"unauthorized"}
-			}
-		} else {
-			answer = struct {
-				Error string
-			}{"unknown command"}
-		}
-	} else if len(msg.Cmd) > 0 {
-		if msg.Cmd == "NEW" {
-			game = NewHangman(1)
-			answer = struct {
-				Curr   []rune
-				Missed []rune
-				Game   uint64
-				Cred   string
-			}{game.Right, game.Wrong, game.Game, game.P1cred}
-		} else {
-			answer = struct {
-				Error string
-			}{"unknown command"}
-		}
-	} else {
-		return
-	}
-	if answer == nil {
-		// Use an anonymous structure to sanitize the data sent back.
-		answer = struct {
-			Word   string
-			Curr   []rune
-			Missed []rune
-			Game   uint64
-		}{game.Word, game.Right, game.Wrong, game.Game}
-	}
+	answer = msg.play()
 	// Send the result down the wire.
 	if bytes, err := json.Marshal(answer); err == nil {
 		log.Println(string(bytes))
@@ -195,3 +208,22 @@ func Play(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 }
+
+func Playws(ws *websocket.Conn) {
+	var answer interface{} = nil
+	var err error = nil
+	var msg Message //Message{Cmd: "NEW"}
+	for {
+		if err = websocket.JSON.Receive(ws, &msg); err != nil {
+			log.Println("Playws.websocket.JSON.Receive:", err)
+			break
+		}
+		log.Println(msg)
+		answer = msg.play()
+		if err := websocket.JSON.Send(ws, answer); err != nil {
+			log.Println("Playws.websocket.JSON.Send", err)
+			break
+		}
+	}
+}
+
