@@ -1,39 +1,40 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html lang="en">
+  <head>
     <meta charset="utf-8">
     <meta name="description" content="">
     <meta name="keywords" content="">
     <title>Hangman</title>
-	<link rel="stylesheet" type="text/css" href="./css/hangman.css">
+    <link rel="stylesheet" type="text/css" href="css/hangman.css" />
     <!--[if IE]>
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
-  <body onload="" data-feedly-mini="yes" class=" hasGoogleVoiceExt">
+  <body onload="">
      <div id="gallows">
-        <div class="top"></div>
-		<div class="support"></div>
-		<div class="hanger"></div>
-		<div class="upright"></div>
-		<div class="bottom"></div>
-	      <div id="figure" class="stick">
-		    <div id="head" class="head" style="display: none;"></div>
-		    <div id="body" class="body" style="display: none;"></div>
-		    <div id="lefth" class="lefthand part" style="display: none;"><div></div></div>
-		    <div id="righth" class="righthand part" style="display: none;"><div></div></div>
-		    <div id="leftf" class="leftfoot part" style="display: none;"><div></div></div>
-		    <div id="rightf" class="rightfoot part" style="display: none;"><div></div></div>
-	    </div>
-	  </div>
+        <div class="top"></div >
+        <div class="support"></div>
+        <div class="hanger"></div >
+        <div class="upright"></div>
+        <div class="bottom"></div>
+          <div id="figure" class="stick">
+            <div id="head" class="head"></div>
+            <div id="body" class="body"></div>
+            <div id="lefth" class="lefthand part"><div></div></div>
+            <div id="righth" class="righthand part"><div></div></div>
+            <div id="leftf" class="leftfoot part"><div></div></div>
+            <div id="rightf" class="rightfoot part"><div></div></div>
+        </div>
+      </div>
     <div class="usrint">
         <p id="abstract"></p>
         <p>Guess a letter</p>
-        <input id="letter" maxlength="1" size="1">
+        <input id="letter" maxlength="1" size="1" />
         <button id="myButton">Submit</button>
         <button id="newGame">New Game</button>
     </div>
-  
-	<script>
+  </body>
+    <script>
         var MYGAME = {
             killStages: ["", "head", "body", "lefth", "righth", "leftf", "rightf"],
             curr:       [],
@@ -41,8 +42,12 @@
             game:       0, 
             auth:       '',
             execute:      function() {
-                if (this.missed.length > 0) {
-                    document.getElementById(this.killStages[this.missed.length]).style.display = "block";
+                try {
+                    if (this.missed.length > 0) {
+                        document.getElementById(this.killStages[this.missed.length]).style.display = "block";
+                    }
+                } catch(err) {
+                    newGame();
                 }
             },
             reset:        function() {
@@ -61,7 +66,7 @@
         };
 
         if ("WebSocket" in window) {
-            var wsocket = new WebSocket("ws://192.168.0.14:3000/wshangman");
+            var wsocket = new WebSocket("ws://richmond.cookgetsitdone.com:8080/wshangman");
             wsocket.onopen = function() {
                 newGame();
             };
@@ -107,7 +112,5 @@
         }
 
         document.getElementById("newGame").onclick = newGame;
-	</script>
-
-</body>
+    </script>
 </html>
