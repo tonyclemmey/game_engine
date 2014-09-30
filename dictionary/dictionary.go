@@ -11,6 +11,7 @@ import (
 	"bufio"
 	"log"
 	"os"
+	"regexp"
 )
 
 type Dictionary struct {
@@ -31,7 +32,12 @@ func readLines(path string) ([]string, error) {
 	var lines []string
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
+		line := scanner.Text()
+		if match, _ := regexp.MatchString("^[A-Za-z]{5,}$", line); match {
+			lines = append(lines, scanner.Text())
+		} else {
+			log.Println(line, "doesn't match")
+		}
 	}
 	return lines, scanner.Err()
 }
