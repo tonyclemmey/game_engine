@@ -15,10 +15,10 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"strings"
 	"time"
 	"unicode"
 	"unicode/utf8"
-	"strings"
 )
 
 var theBoys *men = nil
@@ -27,6 +27,7 @@ var dict *dictionary.Dictionary = nil
 // This is used to represent each game
 type hangman struct {
 	Word   string      // Word represented as an ascii string
+	Defo   string      // Definition of Word for hint
 	WrdUni []rune      // Word represented as unicode points
 	Right  []rune      // Correct tries
 	Wrong  []rune      // Incorrect tries
@@ -66,16 +67,27 @@ func NewMen() {
 // Create a new game of hangman, add it to the singleton 'theBoys' and return
 // to the caller.
 func NewHangman(np int) *hangman {
-	var p2 string
+	var p2, defi string
+	var err error
+GETWORD:
 	dict.Ci = uint32(rand.Intn(len(dict.Words)))
 	wrd := dict.NextWord()
+	if defi, err = dictionary.GetDefinition(wrd); err != nil {
+		log.Println("hangman.NewHangman.GetDefinition:", err)
+		err = nil
+	}
+	for defi == "" {
+		goto GETWORD
+	}
 	theBoys.Games++
 	if np == 2 {
 		p2 = util.Rand_str(64)
 	} else {
 		p2 = ""
 	}
-	game := &hangman{Word: wrd,
+	game := &hangman{
+		Word:   wrd,
+		Defo:   defi,
 		WrdUni: util.StringToRuneArray(wrd),
 		Right:  make([]rune, len(wrd)),
 		Wrong:  make([]rune, 0, 256),
@@ -134,11 +146,12 @@ func (msg *Message) play() interface{} {
 		game = NewHangman(1)
 		answer = struct {
 			Cmd    string
+			Hint   string
 			Curr   []rune
 			Missed []rune
 			Game   uint64
 			Cred   string
-		}{game.Cmd, game.Right, game.Wrong, game.Game, game.P1cred}
+		}{game.Cmd, game.Defo, game.Right, game.Wrong, game.Game, game.P1cred}
 		log.Println(game)
 
 	case "P1T", "P2T":
