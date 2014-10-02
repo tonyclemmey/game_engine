@@ -6,6 +6,8 @@
     <meta name="keywords" content="">
     <title>Hangman</title>
     <link rel="stylesheet" type="text/css" href="css/hangman.css" />
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
     <!--[if IE]>
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -36,6 +38,9 @@
     </div>
   </body>
     <script>
+        $("#myBytton").click(function() {
+        });
+
         var MYGAME = {
             killStages: ["", "head", "body", "lefth", "righth", "leftf", "rightf"],
             hint:       '',
@@ -80,6 +85,7 @@
                         MYGAME.hint = msg.Hint;
                         MYGAME.auth = msg.Cred; 
                         MYGAME.game = msg.Game;
+                        document.getElementById("hint").innerHTML = MYGAME.hint;
                         break;
                 }
                 MYGAME.curr = function() { 
@@ -101,7 +107,7 @@
                     }
                     return tmp;
                 }().join(' ');
-                document.getElementById("hint").innerHTML = MYGAME.hint;
+                $("#abstract").effect("shake");
                 MYGAME.execute();
             };
             wsocket.onclose = function() { 
