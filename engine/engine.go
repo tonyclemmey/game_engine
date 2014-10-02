@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"code.google.com/p/go.net/websocket"
+    "math/rand"
+    "time"
 )
 
 func apiHandler(next http.Handler) http.HandlerFunc {
@@ -19,6 +21,7 @@ func apiHandlerFunc(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func main() {
+    rand.Seed(time.Now().UTC().UnixNano())
 	// Create the singleton "men" in hangman to keep track of all hangman episodes
 	hangman.NewMen()
 	//    http.Handle("/list", apiHandlerFunc())
