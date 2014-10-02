@@ -8,7 +8,7 @@ except ImportError as e:
     print(e)
     sys.exit(1)
 
-url = 'http://jcmbpro:3000/hangman'
+url = 'http://richmond.cookgetsitdone.com:8080/hangman'
 
 hdrs = { 'content-type': 'application/json'}
 
@@ -22,7 +22,6 @@ payload2 = {
 
 try:
     resp = requests.post(url, data=json.dumps(payload1))
-    print(resp.json())
 except requests.packages.urllib3.exceptions.ProtocolError as e:
     print(e)
     sys.exit(2)
@@ -35,6 +34,8 @@ except IndexError:
 
 payload2["Gid"] = resp.json()["Game"]
 payload2["Auth"] = resp.json()["Cred"]
+
+print(resp.json()["Hint"])
 
 wrong = []
 doit = lambda x: chr(x) if x>0 else '-'
