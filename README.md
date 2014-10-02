@@ -14,6 +14,16 @@ code, navigate to the 'engine' and `go install`. If your Go environment is
 configured properly, it will work by `$GOPATH/bin/engine`. The process listens
 on port 3000 by default, but this can be changed in the code.
 
+Games
+--------------
+
+The only game written at this time is Hangman. A Python cli and web clients
+are provided. Right now, the game does not end. You may hang your character,
+but you can continue on to solve the word. The Macmillan API is used to
+provide a hint. A running example is at: 
+
+http://richmond.cookgetsitdone.com/hangman.html
+
 Configuration
 --------------
 
