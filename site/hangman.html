@@ -57,25 +57,24 @@
                 for (i in sk) {
                     document.getElementById(sk[i]).style.display = "none";
                 }
-                console.log(this.hint);
             }
         }
     
         document.getElementById("myButton").onclick = function() {
             guess = document.getElementById("letter").value;
             game = {Cmd: "P1T", Play: guess, Gid: MYGAME.game, Auth: MYGAME.auth};
-            console.log(game);
+            console.log("Sending: " + JSON.stringify(game));
             wsocket.send(JSON.stringify(game));
         };
 
         if ("WebSocket" in window) {
-            //var wsocket = new WebSocket("ws://richmond.cookgetsitdone.com:8080/wshangman");
-            var wsocket = new WebSocket("ws://jcmbpro:3000/wshangman");
+            var wsocket = new WebSocket("ws://richmond.cookgetsitdone.com:8080/wshangman");
             wsocket.onopen = function() {
                 newGame();
             };
             wsocket.onmessage = function (event) { 
                 var msg = JSON.parse(event.data);
+                console.log("Received: " + event.data);
                 switch (msg.Cmd) {
                     case "NEW":
                         MYGAME.hint = msg.Hint;
