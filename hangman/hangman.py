@@ -42,6 +42,8 @@ doit = lambda x: chr(x) if x>0 else '-'
 while len(wrong) < 7:
     print(''.join([doit(l) for l in resp.json()["Curr"]]))
     payload2["Play"] = input("Letter: ")
+    if not payload2["Play"]:
+        break
     try:
         resp = requests.post(url, data=json.dumps(payload2))
     except requests.packages.urllib3.exceptions.ProtocolError as e:
