@@ -3,6 +3,7 @@ Hangman
 
 Author: Justin Cook
 Credits: Jeffri Hong
+         Paul Underwood
 */
 
 html, body
@@ -13,6 +14,95 @@ html, body
     padding: 0;
     overflow: hidden;
 }
+
+/* Smartphones (portrait and landscape) ----------- */
+@media only screen
+and (min-width : 320px)
+and (max-width : 480px) {
+/* Styles */
+#gallows .top {
+    width: 80%;
+}
+}
+ 
+/* Smartphones (landscape) ----------- */
+@media only screen
+and (min-width : 321px) {
+/* Styles */
+#gallows .top {
+    width: 60%;
+}
+}
+ 
+/* Smartphones (portrait) ----------- */
+@media only screen
+and (max-width : 320px) {
+/* Styles */
+#gallows .top {
+    width: 60%;
+}
+}
+ 
+/* iPads (portrait and landscape) ----------- */
+@media only screen
+and (min-width : 768px)
+and (max-width : 1024px) {
+/* Styles */
+#gallows .top {
+    width: 60%;
+}
+}
+ 
+/* iPads (landscape) ----------- */
+@media only screen
+and (min-width : 768px)
+and (max-width : 1024px)
+and (orientation : landscape) {
+/* Styles */
+#gallows .top {
+    width: 60%;
+}
+}
+ 
+/* iPads (portrait) ----------- */
+@media only screen
+and (min-width : 768px)
+and (max-width : 1024px)
+and (orientation : portrait) {
+/* Styles */
+#gallows .top {
+    width: 60%;
+}
+}
+ 
+/* Desktops and laptops ----------- */
+@media only screen
+and (min-width : 1224px) {
+/* Styles */
+#gallows .top {
+    width: 60%;
+}
+}
+ 
+/* Large screens ----------- */
+@media only screen
+and (min-width : 1824px) {
+/* Styles */
+#gallows .top {
+    width: 60%;
+}
+}
+ 
+/* iPhone 4 ----------- */
+@media
+only screen and (-webkit-min-device-pixel-ratio : 1.5),
+only screen and (min-device-pixel-ratio : 1.5) {
+/* Styles */
+#gallows .top {
+    width: 60%;
+}
+}
+
 p
 {
     margin: 0;
@@ -27,7 +117,7 @@ p
 }
 #gallows .top {
     position: absolute;
-    width: 60%;
+//  width: 60%;
     height: 1em;
     background: #000;
 }
@@ -82,7 +172,7 @@ p
     margin-left: -1.4em;
     text-align: center;
     line-height: 3em;
-    display: none;
+        display: none;
 }
 .stick .body
 {
@@ -93,7 +183,7 @@ p
     top: 2.7em;
     left: 50%;
     margin-left: -.1em;
-    display: none;
+        display: none;
 }
 .stick .part
 {
@@ -114,7 +204,7 @@ p
     top: .2em;
     -webkit-transform: rotate(-130deg);
     -moz-transform: rotate(-130deg);
-    display: none;
+        display: none;
 }
 
 .stick .righthand
@@ -122,7 +212,7 @@ p
     top: .2em;
     -webkit-transform: rotate(130deg);
     -moz-transform: rotate(130deg);
-    display: none;
+        display: none;
 }
 
 .stick .leftfoot
@@ -131,7 +221,7 @@ p
     top: 3em;
     -webkit-transform: rotate(-160deg);
     -moz-transform: rotate(-160deg);
-    display: none;
+        display: none;
 }
 
 .stick .rightfoot
@@ -140,15 +230,16 @@ p
     top: 3em;
     -webkit-transform: rotate(160deg);
     -moz-transform: rotate(160deg);
-    display: none;
+        display: none;
 }
 .usrint {
-    position: absolute;
-    top: 65%;
-    left: 30%;
+        position: absolute;
+        top: 65%;
+        left: 30%;
 }
 p#hint {
-    position: relative;
-    left: -35%;
-    text-align: center;
+        position: relative;
+        left: -25%;
+        text-align: center;
 }
+
