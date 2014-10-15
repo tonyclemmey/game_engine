@@ -66,7 +66,7 @@ func (d *Dictionary) NextWord() string {
 
 func SearchMacmillan(wrd string) (string, error) {
 	url := "https://www.macmillandictionary.com/api/v1/"
-	ak := "jK67wm71vm0PjdxolDZtKMMMIijzaSuxXslJPWcP50Vq87RWXW0SkLNS1sLRDBc4"
+	ak := ""
 	var srch map[string]interface{}
 
 	httpClient := &http.Client{}
@@ -111,7 +111,7 @@ func SearchMacmillan(wrd string) (string, error) {
 
 func GetMacmillan(wrd string) (map[string]interface{}, error) {
 	url := "https://www.macmillandictionary.com/api/v1/"
-	ak := "jK67wm71vm0PjdxolDZtKMMMIijzaSuxXslJPWcP50Vq87RWXW0SkLNS1sLRDBc4"
+	ak := ""
 	var msg map[string]interface{}
 
 	httpClient := &http.Client{}
