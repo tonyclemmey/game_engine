@@ -189,9 +189,13 @@ func GetDefinition(wrd string) (string, error) {
 		return "", err
 	}
 	if boom, ok := f(doc); ok {
-		re, _ := regexp.Compile(new_word + `[\w']*`)
-		res := re.ReplaceAllString(boom, "-----")
-		return string(res), nil //res[0][0], nil
+		// Only want the first sentence
+		re, _ := regexp.Compile(`[\w',;\ ]+`)
+		res := re.FindAllStringSubmatch(boom, -1)
+		// Remove the word from the hint
+		re, _ = regexp.Compile(new_word + `[\w']*`)
+		res2 := re.ReplaceAllString(res[0][0], "-----")
+		return res2, nil
 	} else {
 		return "", errors.New("dictionary.GetDefinition.regexp: failed to find matching string")
 	}
