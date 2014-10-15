@@ -162,19 +162,25 @@ func GetDefinition(wrd string) (string, error) {
 
 	var f func(*html.Node) (string, bool)
 	f = func(n *html.Node) (string, bool) {
+		stuff := make([]string, 0, 5) //added
 		if n.Type == html.ElementNode && n.Data == "span" {
 			for _, a := range n.Attr {
 				if match, _ := regexp.MatchString(`DEFINITION`, a.Val); match {
-					return n.FirstChild.Data, true
+					stuff = append(stuff, n.FirstChild.Data)
 				}
 			}
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			if b, ok := f(c); ok {
-				return b, true
+				stuff = append(stuff, b)
+				break
 			}
 		}
-		return "", false
+		if len(stuff) > 0 {
+			return strings.Join(stuff, " "), true
+		} else {
+			return "", false
+		}
 	}
 
 	doc, err := html.Parse(strings.NewReader(msg["entryContent"].(string)))
@@ -183,9 +189,9 @@ func GetDefinition(wrd string) (string, error) {
 		return "", err
 	}
 	if boom, ok := f(doc); ok {
-		re, _ := regexp.Compile(`[\w,\ \n]+`)
-		res := re.FindAllStringSubmatch(boom, -1)
-		return res[0][0], nil
+		re, _ := regexp.Compile(new_word + `[\w']*`)
+		res := re.ReplaceAllString(boom, "-----")
+		return string(res), nil //res[0][0], nil
 	} else {
 		return "", errors.New("dictionary.GetDefinition.regexp: failed to find matching string")
 	}
