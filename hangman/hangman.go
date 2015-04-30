@@ -17,6 +17,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"regexp"
 	"unicode"
 	"unicode/utf8"
 )
@@ -87,9 +88,14 @@ GETWORD:
 	} else {
 		p2 = ""
 	}
+
+	// Remove the word from the hint
+	re, _ := regexp.Compile(dictEntry.Word + `[\w']*`)
+	res2 := re.ReplaceAllString(dictEntry.Definition, "-----")
+
 	game := &hangman{
 		Word:   dictEntry.Word,
-		Defo:   dictEntry.Definition,
+		Defo:   res2,
 		WrdUni: util.StringToRuneArray(dictEntry.Word),
 		Right:  make([]rune, len(dictEntry.Word)),
 		Wrong:  make([]rune, 0, 256),
