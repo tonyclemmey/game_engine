@@ -19,10 +19,13 @@ Games
 
 The only game written at this time is Hangman. A Python cli and web clients
 are provided. Right now, the game does not end. You may hang your character,
-but you can continue on to solve the word. The Macmillan API is used to
-provide a hint. A running example is at: 
+but you can continue on to solve the word. The Cambridge Dictionary API is 
+used to provide a hint. A running example is at: 
 
 http://richmond.cookgetsitdone.com/hangman.html
+
+In the example above, websocket is listening on port 8080. The Python example
+provided uses this by default.
 
 Configuration
 --------------

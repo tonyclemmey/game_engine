@@ -8,7 +8,8 @@ except ImportError as e:
     print(e)
     sys.exit(1)
 
-url = 'http://richmond.cookgetsitdone.com:8080/hangman'
+url = 'http://richmond.cookgetsitdone.com/hangman'
+#url = 'http://localhost:3000/hangman'
 
 hdrs = { 'content-type': 'application/json'}
 
