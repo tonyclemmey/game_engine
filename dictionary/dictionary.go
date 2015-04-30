@@ -2,16 +2,22 @@
 Package dictionary provides an interface to a dictionary with fancy features
 such as complex letter frequency.
 
+TODO: add complex letter frequency
+
 Author: Justin Cook <jhcook@gmail.com>
 */
 
 package dictionary
 
 import (
+	"github.com/jhcook/game_engine/dictionary/cache_sqlite"
+	"github.com/jhcook/game_engine/util"
+	"launchpad.net/xmlpath"
+	"fmt"
 	"bufio"
-	"code.google.com/p/go.net/html"
 	"encoding/json"
 	"errors"
+	"time"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -26,12 +32,16 @@ type Dictionary struct {
 	Words []string
 }
 
+var inpChan = make(chan []string)
+var outChan = make(chan *cache_sqlite.WordDefinition)
+var request = make(chan string)
+
 // readLines reads a whole file into memory
 // and returns a slice of its lines.
 func readLines(path string) ([]string, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		log.Fatalln("dictionary.readLines:", err)
+		log.Fatalln("%s: %v\n", util.GetFuncName(), err)
 		return nil, err
 	}
 	defer file.Close()
@@ -49,6 +59,13 @@ func readLines(path string) ([]string, error) {
 }
 
 func NewDictionary(path string) *Dictionary {
+
+	// Instantiate cache
+	go cache_sqlite.DefinitionWriter(inpChan, request, outChan)
+	// Need time to create if db does not exist
+	time.Sleep(1 * time.Second)
+	go cache_sqlite.DefinitionReader(request, outChan)
+
 	dict := new(Dictionary)
 	dict.Ci = 1000
 	if len(path) == 0 {
@@ -64,66 +81,155 @@ func (d *Dictionary) NextWord() string {
 	return d.Word
 }
 
-func SearchMacmillan(wrd string) (string, error) {
-	url := "https://www.macmillandictionary.com/api/v1/"
-	ak := ""
+
+var ak string = ""
+var url string = "https://dictionary.cambridge.org/api/v1/"
+
+type DictEntry struct {
+	Word        string
+	Definition  string
+}
+
+/*
+Returns spelling suggestions for a word, i.e. original and inflected forms
+which resemble the word entered. Note that this will return suggestions even
+for words spelled correctly!
+
+Request Parameters
+Accept [STRING] Header; Default: application/json application/json or
+                                 application/xml
+dictCode [IDSTRING] URL Dictionary code, which can be found from the
+                    getDictionaries method
+entrynumber [INT] Parameter Number of items to be shown.
+q [STRING] Parameter The string to search for.
+
+Response 200
+{
+  dictionaryCode [IDSTRING] Unique id of the dictionary dataset.
+  searchTerm [STRING] The term that the user has entered.
+  suggestions[STRING] The suggested new search term.
+}
+*/
+
+func didYouMeanCambridge(wrd string) ([]interface{}, error) {
 	var srch map[string]interface{}
+	api := "dictionaries/american-english/search/didyoumean?q="
 
 	httpClient := &http.Client{}
-	req, err := http.NewRequest("GET", url+"dictionaries/american/search/?q="+wrd, nil)
-	req.Header.Set("Host", "www.macmillandictionary.com")
+	req, err := http.NewRequest("GET", url+api+wrd, nil)
+	req.Header.Set("Host", "dictionary.cambridge.org")
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("accessKey", ak)
 
 	res, err := httpClient.Do(req)
 	if err != nil {
-		log.Println("dictionary.SearchMacmillan.Do:", err)
-		return "", err
+		log.Println(fmt.Sprintf("%s.Do: %s", util.GetFuncName(), err))
+		return nil, err
 	}
 
 	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
 
 	if err := json.Unmarshal(body, &srch); err != nil {
-		log.Println("dictionary.SearchMacmillan.Unmarshal:", err)
-		return "", err
+		log.Println(fmt.Sprintf("%s.Unmarshal: %s", util.GetFuncName(), err))
+		return nil, err
 	} else {
 		res.Body.Close()
 	}
 
-	num, ok := srch["resultNumber"]
-
-	var num1 int
-	switch num.(type) {
-	default:
-		num1 = int(num.(float64)) //Assuming float64 (not portable)
+	if wrds, ok := srch["suggestions"].([]interface{}); ok {
+		return wrds, nil
 	}
-
-	if num1 < 1 {
-		return "", errors.New("dictionary.SearchMacmillann: word not found in search")
-	} else if !ok {
-		return "", errors.New("dictionary.SearchMacmillan: element not found in search")
-	}
-
-	entry_map := srch["results"].([]interface{})[0].(map[string]interface{})
-	return entry_map["entryId"].(string), nil
+	return nil, errors.New(fmt.Sprintf("%s: unable to source words", util.GetFuncName()))
 }
 
-func GetMacmillan(wrd string) (map[string]interface{}, error) {
-	url := "https://www.macmillandictionary.com/api/v1/"
-	ak := ""
-	var msg map[string]interface{}
+/*
+Performs a search for a word or phrase in a particular dictionary.
+
+currentPageIndex [INT] The index (offset) of the current page of results.
+dictionaryCode [IDSTRING] Unique id of the dictionary dataset.
+pageNumber [INT] The total number of pages of results found.
+resultNumber [INT] The total number of results found.
+results
+[
+  {
+    entryId [IDSTRING] Unique id of the dictionary entry.
+    entryLabel [STRING] A user-facing label which describes the entry.
+    entryUrl [URL] The canonical URL of the entry on Cambridge Dictionaries Online.
+  }
+]
+*/
+
+func searchCambridge(wrd string) ([]interface{}, error) {
+	var srch map[string]interface{}
+	api := "dictionaries/american-english/search/?q="
 
 	httpClient := &http.Client{}
-	req, err := http.NewRequest("GET", url+"dictionaries/american/entries/"+wrd, nil)
-	req.Header.Set("Host", "www.macmillandictionary.com")
+	req, err := http.NewRequest("GET", url+api+wrd, nil)
+	req.Header.Set("Host", "dictionary.cambridge.org")
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("accessKey", ak)
 
 	res, err := httpClient.Do(req)
 	if err != nil {
-		log.Println("dictionary.GetMacmillan.Do:", err)
+		log.Println(fmt.Sprintf("%s.Do: %s", util.GetFuncName(), err))
 		return nil, err
+	}
+
+	defer res.Body.Close()
+	body, _ := ioutil.ReadAll(res.Body)
+
+	if err := json.Unmarshal(body, &srch); err != nil {
+		log.Println(fmt.Sprintf("%s.Unmarshal: %s", util.GetFuncName(), err))
+		return nil, err
+	} else {
+		res.Body.Close()
+	}
+
+	if wrds, ok := srch["results"].([]interface{}); ok {
+		return wrds, nil
+	}
+	return nil, errors.New(fmt.Sprintf("%s: unable to source words", util.GetFuncName()))
+}
+
+/*
+Queries the API for `wrd` and receives on 200:
+
+dictionaryCode [IDSTRING] Unique id of the dictionary dataset.
+entryContent [STRING] The actual content of an entry.
+entryId [IDSTRING] Unique id of the dictionary entry.
+entryLabel [STRING] A user-facing label which describes the entry.
+entryUrl [URL] The canonical URL of the entry on Cambridge Dictionaries Online.
+format [STRING] Format of entry content returned.
+topics
+[
+  {
+    topicId [IDSTRING] Unique id of the individual topic.
+    topicLabel [STRING] A user-facing label which describes the topic.
+    topicParentId [IDSTRING] Unique id of the parent of the topic.
+    topicUrl [STRING] The canonical URL of the topic on Cambridge Dictionaries Online.
+  }
+]
+
+getDefinitionCambridge parses entryContent for
+<sense-block><def-block><definition> and returns the string in <def>.
+*/
+
+func getDefinitionCambridge(wrd string) (string, error) {
+	var msg map[string]interface{}
+	api := "dictionaries/american-english/entries/"
+	opts := "?format=xml"
+
+	httpClient := &http.Client{}
+	req, err := http.NewRequest("GET", url+api+wrd+opts, nil)
+	req.Header.Set("Host", "dictionary.cambridge.org")
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("accessKey", ak)
+
+	res, err := httpClient.Do(req)
+	if err != nil {
+		log.Println(fmt.Sprintf("%s.Do: %s", util.GetFuncName(), err))
+		return "", err
 	}
 
 	defer res.Body.Close()
@@ -131,72 +237,88 @@ func GetMacmillan(wrd string) (map[string]interface{}, error) {
 	body, _ := ioutil.ReadAll(res.Body)
 
 	if err := json.Unmarshal(body, &msg); err != nil {
-		log.Println("dictionary.GetMacmillan.Unmarshal:", err)
-		return nil, err
+		log.Println(fmt.Sprintf("%s: %s", util.GetFuncName(), err))
+		return "", err
 	} else {
 		res.Body.Close()
 	}
-	return msg, nil
+
+	// A successful HTTP GET was performed, but see if word was found.
+	content, isOk := msg["entryContent"].(string)
+
+	// If entryContent does not exist, the entry does not exist.
+	if !isOk {
+		emptyStringErr := errors.New(fmt.Sprintf("%s: no entryContent", util.GetFuncName()))
+		return "", emptyStringErr
+	}
+
+	// The entry exists so parse xml for definition.
+	entryContent := strings.NewReader(content)
+	path := xmlpath.MustCompile("/di/pos-block/sense-block/def-block[1]/definition/def")
+	root, err := xmlpath.Parse(entryContent)
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("%s.xmlpath.Parse: %s", util.GetFuncName(), err))
+	}
+	if value, ok := path.String(root); ok {
+		return strings.Trim(value, ": "), nil
+	} else {
+		return "", errors.New(fmt.Sprintf("%s.xmlpath.String: value not found",
+			util.GetFuncName()))
+	}
 }
 
-func GetDefinition(wrd string) (string, error) {
-	log.Println("dictionary.GetDefinition:", wrd)
+/*
+This is the function that performs the orchestration using the Cambridge
+remote dictionary API.
+*/
+func (d *DictEntry) GetDefinition() (error) {
 	defer func() (string, error) {
 		if r := recover(); r != nil {
-			return "", errors.New("GetDefinition: unable to source")
+			return "", errors.New(fmt.Sprintf("%s: unable to source", util.GetFuncName()))
 		}
-		return "", errors.New("GetDefinition: unknown error")
+		return "", errors.New(fmt.Sprintf("%s: unknown error", util.GetFuncName()))
 	}()
 
-	// Search for word inflections
-	new_word, err := SearchMacmillan(wrd)
-	if err != nil {
-		return "", err
-	}
-
 	// Get dictionary entry
-	msg, err := GetMacmillan(new_word)
-	if err != nil {
-		return "", err
+	var err error
+
+	// Check to see if the word is in the cache
+	request <- d.Word
+	stf := <- outChan
+	if stf != nil && stf.Definition.Valid {
+		d.Definition = stf.Definition.String
+		return nil
 	}
 
-	var f func(*html.Node) (string, bool)
-	f = func(n *html.Node) (string, bool) {
-		stuff := make([]string, 0, 5) //added
-		if n.Type == html.ElementNode && n.Data == "span" {
-			for _, a := range n.Attr {
-				if match, _ := regexp.MatchString(`DEFINITION`, a.Val); match {
-					stuff = append(stuff, n.FirstChild.Data)
-				}
-			}
-		}
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			if b, ok := f(c); ok {
-				stuff = append(stuff, b)
-				break
-			}
-		}
-		if len(stuff) > 0 {
-			return strings.Join(stuff, " "), true
+	d.Definition, err = getDefinitionCambridge(d.Word)
+
+	/* If successful: content received. Otherwise, perform inflection and
+	 * search for any matching words.
+	 */
+	if err != nil {
+		log.Println(err)
+		if wrds, err2 := didYouMeanCambridge(d.Word); err2 != nil {
+			log.Println(err2)
+			return err2
 		} else {
-			return "", false
+			d.Word = wrds[0].(string)
+			wrds2, err3 := searchCambridge(d.Word)
+			if err3 != nil {
+				log.Println("err3: %v", err3)
+				return errors.New(fmt.Sprintf("%s.searchCambridge: unable to source words", util.GetFuncName()))
+			}
+			d.Word = wrds2[0].(map[string]interface{})["entryId"].(string)
+			var err4 error
+			d.Definition, err4 = getDefinitionCambridge(d.Word)
+			if err4 != nil {
+				log.Println("err4: %v", err4)
+				return errors.New(fmt.Sprintf("%s.getDefinitionCambridge: unable to source word", util.GetFuncName()))
+			}
 		}
 	}
-
-	doc, err := html.Parse(strings.NewReader(msg["entryContent"].(string)))
-	if err != nil {
-		log.Println("dictionary.GetDefinition.Parse:", err)
-		return "", err
-	}
-	if boom, ok := f(doc); ok {
-		// Only want the first sentence
-		re, _ := regexp.Compile(`[\w',;\ ]+`)
-		res := re.FindAllStringSubmatch(boom, -1)
-		// Remove the word from the hint
-		re, _ = regexp.Compile(new_word + `[\w']*`)
-		res2 := re.ReplaceAllString(res[0][0], "-----")
-		return res2, nil
-	} else {
-		return "", errors.New("dictionary.GetDefinition.regexp: failed to find matching string")
-	}
+	dent := []string{d.Word, d.Definition}
+	inpChan <- dent
+	return nil
 }
+
+

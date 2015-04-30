@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"unicode/utf8"
 	"crypto/rand"
+	"runtime"
 )
 
 func StringToRuneArray(str string) []rune {
@@ -37,4 +38,13 @@ func Rand_str(str_size int) string {
 		bytes[i] = alphanum[b%byte(len(alphanum))]
 	}
 	return string(bytes)
+}
+
+/*
+This is a utility for use in debugging
+*/
+
+func GetFuncName() string {
+	pc, _, _, _ := runtime.Caller(1)
+	return runtime.FuncForPC(pc).Name()
 }

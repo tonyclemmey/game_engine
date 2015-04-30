@@ -57,7 +57,7 @@ type men struct {
 // be singleton.
 func NewMen() {
 	if theBoys != nil {
-		log.Println("NewMen: already instantiated")
+		log.Printf("%s: already instantiated\n", util.GetFuncName())
 		return
 	}
 	dict = dictionary.NewDictionary("")
@@ -67,16 +67,18 @@ func NewMen() {
 // Create a new game of hangman, add it to the singleton 'theBoys' and return
 // to the caller.
 func NewHangman(np int) *hangman {
-	var p2, defi string
+	var p2 string
 	var err error
+	var dictEntry dictionary.DictEntry
+
 GETWORD:
 	dict.Ci = uint32(rand.Intn(len(dict.Words)))
-	wrd := dict.NextWord()
-	if defi, err = dictionary.GetDefinition(wrd); err != nil {
-		log.Println("hangman.NewHangman.GetDefinition:", err)
+	dictEntry.Word = dict.NextWord()
+	if err = dictEntry.GetDefinition(); err != nil {
+		log.Printf("%s.GetDefinition: %v\n", util.GetFuncName(), err)
 		err = nil
 	}
-	for defi == "" {
+	for dictEntry.Definition == "" {
 		goto GETWORD
 	}
 	theBoys.Games++
@@ -86,10 +88,10 @@ GETWORD:
 		p2 = ""
 	}
 	game := &hangman{
-		Word:   wrd,
-		Defo:   defi,
-		WrdUni: util.StringToRuneArray(wrd),
-		Right:  make([]rune, len(wrd)),
+		Word:   dictEntry.Word,
+		Defo:   dictEntry.Definition,
+		WrdUni: util.StringToRuneArray(dictEntry.Word),
+		Right:  make([]rune, len(dictEntry.Word)),
 		Wrong:  make([]rune, 0, 256),
 		Game:   theBoys.Games,
 		Cmd:    "NEW",
@@ -98,7 +100,7 @@ GETWORD:
 		Timer:  time.NewTimer(time.Second * 60)}
 	go func() {
 		<-game.Timer.C
-		log.Println("expired:", game.Game)
+		log.Printf("%s expired: %v\n", game.Game, util.GetFuncName())
 		if _, ok := theBoys.Episode[game.Game]; ok {
 			delete(theBoys.Episode, game.Game)
 		}
@@ -204,7 +206,7 @@ func Playhttp(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&msg); err != nil {
 		bytes, _ := json.Marshal(err)
-		log.Println("hangman.Play.Decode:", err)
+		log.Printf("%s.Decode: %v\n", util.GetFuncName(), err)
 		w.Write(bytes)
 		return
 	}
@@ -224,12 +226,12 @@ func Playws(ws *websocket.Conn) {
 	var msg Message
 	for {
 		if err = websocket.JSON.Receive(ws, &msg); err != nil {
-			log.Println("Playws.websocket.JSON.Receive:", err)
+			log.Printf("%s.Receive: %v\n", util.GetFuncName(), err)
 			break
 		}
 		answer = msg.play()
 		if err := websocket.JSON.Send(ws, answer); err != nil {
-			log.Println("Playws.websocket.JSON.Send", err)
+			log.Printf("%s.Send: %v\n", util.GetFuncName(), err)
 			break
 		}
 	}
