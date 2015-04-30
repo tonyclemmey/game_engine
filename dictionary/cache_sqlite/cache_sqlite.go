@@ -56,8 +56,7 @@ func DefinitionWriter(inDefs chan []string, reqs chan string,
 		iStf := <-inDefs
         // Check to see if already in the db
         reqs <- iStf[0]
-		log.Println(iStf)
-        wrd := <- outDefs 
+        wrd := <- outDefs
         if wrd != nil {
             log.Printf("exists: %s\n", wrd.Word.String)
             continue
