@@ -70,6 +70,12 @@
             wsocket.send(JSON.stringify(game));
         };
 
+        $("#letter").keyup(function(event){
+            if(event.keyCode == 13){
+                $("#myButton").click();
+            }
+        });
+
         if ("WebSocket" in window) {
             //var wsocket = new WebSocket("ws://richmond.cookgetsitdone.com:8080/wshangman");
             var wsocket = new WebSocket("ws://localhost:3000/wshangman");
