@@ -3,7 +3,6 @@ Hangman
 
 Author: Justin Cook
 Credits: Jeffri Hong
-         Paul Underwood
 */
 
 html, body
@@ -15,94 +14,6 @@ html, body
     overflow: hidden;
 }
 
-/* Smartphones (portrait and landscape) ----------- */
-@media only screen
-and (min-width : 320px)
-and (max-width : 480px) {
-/* Styles */
-#gallows .top {
-    width: 80%;
-}
-}
- 
-/* Smartphones (landscape) ----------- */
-@media only screen
-and (min-width : 321px) {
-/* Styles */
-#gallows .top {
-    width: 60%;
-}
-}
- 
-/* Smartphones (portrait) ----------- */
-@media only screen
-and (max-width : 320px) {
-/* Styles */
-#gallows .top {
-    width: 60%;
-}
-}
- 
-/* iPads (portrait and landscape) ----------- */
-@media only screen
-and (min-width : 768px)
-and (max-width : 1024px) {
-/* Styles */
-#gallows .top {
-    width: 60%;
-}
-}
- 
-/* iPads (landscape) ----------- */
-@media only screen
-and (min-width : 768px)
-and (max-width : 1024px)
-and (orientation : landscape) {
-/* Styles */
-#gallows .top {
-    width: 60%;
-}
-}
- 
-/* iPads (portrait) ----------- */
-@media only screen
-and (min-width : 768px)
-and (max-width : 1024px)
-and (orientation : portrait) {
-/* Styles */
-#gallows .top {
-    width: 60%;
-}
-}
- 
-/* Desktops and laptops ----------- */
-@media only screen
-and (min-width : 1224px) {
-/* Styles */
-#gallows .top {
-    width: 60%;
-}
-}
- 
-/* Large screens ----------- */
-@media only screen
-and (min-width : 1824px) {
-/* Styles */
-#gallows .top {
-    width: 60%;
-}
-}
- 
-/* iPhone 4 ----------- */
-@media
-only screen and (-webkit-min-device-pixel-ratio : 1.5),
-only screen and (min-device-pixel-ratio : 1.5) {
-/* Styles */
-#gallows .top {
-    width: 60%;
-}
-}
-
 p
 {
     margin: 0;
@@ -110,14 +21,14 @@ p
 }
 #gallows {
     position: absolute;
-    width: 25%;
+    width: 35%;
     height: 50%;
     top: 10%;
     left: 25%;
 }
 #gallows .top {
     position: absolute;
-//  width: 60%;
+/*  width: 60%; */
     height: 1em;
     background: #000;
 }
@@ -190,7 +101,7 @@ p
     width: .15em;
     height: 5em;
     position: absolute;
-    //top: .2em;
+/*        top: .2em; */
     left: 50%;
     margin-left: -.1em;
 }
@@ -243,3 +154,204 @@ p#hint {
         text-align: center;
 }
 
+/* General iPad layouts */
+@media only screen 
+and (min-device-width: 768px)
+and (max-device-width: 1024px) {
+    #gallows .top {
+        width: 60%;
+    }
+    #gallows .bottom {
+        width: 110%;
+    }
+}
+
+/* iPad in portrait */
+@media only screen 
+and (min-device-width: 768px)
+and (max-device-width: 1024px)
+and (orientation:portrait) {
+    #gallows .top {
+        width: 80%;
+    }
+}
+
+/* iPad in landscape */
+@media only screen
+and (min-device-width: 768px)
+and (max-device-width: 1024px)
+and (orientation:landscape) {
+    #gallows .top {
+        width: 60%;
+    }
+}
+ 
+/* General retina iPad */
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px)
+and (-webkit-min-device-pixel-ratio: 2) {
+    #gallows .top {
+        width: 60%;
+    }
+}
+
+/* iPad retina in portrait */
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) 
+and (orientation : portrait)
+and (-webkit-min-device-pixel-ratio: 2) {
+    #gallows .top {
+        width: 80%;
+    }
+}
+
+/* iPad retina in landscape */
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) 
+and (orientation : landscape)
+and (-webkit-min-device-pixel-ratio: 2) {
+    #gallows .top {
+        width: 60%;
+    }
+}
+
+/* iPhone 6 Plus in portrait & landscape */
+@media only screen 
+and (min-device-width : 414px) 
+and (max-device-width : 736px) {
+    #gallows .top {
+        width: 125%;
+    }
+}
+
+/* iPhone 6 Plus in landscape */
+@media only screen 
+and (min-device-width : 414px) 
+and (max-device-width : 736px) 
+and (orientation : landscape) {
+    #gallows .top {
+        width: 60%;
+    }
+}
+
+/* iPhone 6 Plus in portrait */
+@media only screen 
+and (min-device-width : 414px) 
+and (max-device-width : 736px) 
+and (orientation : portrait) {
+    #gallows {
+        width: 50%;
+    }
+    #gallows .top {
+        width: 125%;
+    }
+    #gallows .bottom {
+        width: 125%;
+    }
+}
+
+/* iPhone 6 in portrait & landscape */
+@media only screen 
+and (min-device-width : 375px) 
+and (max-device-width : 667px) {
+    #gallows .top {
+        width: 80%;
+    }
+}
+
+/* iPhone 6 in landscape */
+@media only screen 
+and (min-device-width : 375px) 
+and (max-device-width : 667px) 
+and (orientation : landscape) {
+    #gallows .top {
+        width: 60%;
+    }
+}
+
+/* iPhone 6 in portrait */
+@media only screen 
+and (min-device-width : 375px) 
+and (max-device-width : 667px) 
+and (orientation : portrait) {
+    #gallows .top {
+        width: 60%;
+    }
+}
+
+/* iPhone 5 & 5S in portrait & landscape */
+@media only screen 
+and (min-device-width : 320px) 
+and (max-device-width : 568px) {
+    #gallows .top {
+        width: 60%;
+    }
+}
+
+/* iPhone 5 & 5S in landscape */
+@media only screen 
+and (min-device-width : 320px) 
+and (max-device-width : 568px) 
+and (orientation : landscape) {
+    #gallows .top {
+        width: 60%;
+    }
+}
+
+/* iPhone 5 & 5S in portrait */
+@media only screen 
+and (min-device-width : 320px) 
+and (max-device-width : 568px) 
+and (orientation : portrait) {
+    #gallows .top {
+        width: 80%;
+    }
+}
+
+/* iPhone 2G-4S general */
+@media only screen 
+and (min-device-width : 320px) 
+and (max-device-width : 480px) { 
+    #gallows .top {
+        width: 60%;
+    }
+}
+
+/* iPhone 2G-4S in landscape */
+@media only screen 
+and (min-device-width : 320px) 
+and (max-device-width : 480px) 
+and (orientation : landscape) {
+    #gallows .top {
+        width: 60%;
+    }
+}
+
+/* iPhone 2G-4S in portrait */
+@media only screen 
+and (min-device-width : 320px) 
+and (max-device-width : 480px) 
+and (orientation : portrait) {
+    #gallows .top {
+        width: 80%;
+    }
+}
+
+/* Desktops and laptops ----------- */
+@media only screen
+and (min-width : 1224px) {
+    #gallows .top {
+        width: 60%;
+    }
+}
+ 
+/* Large screens ----------- */
+@media only screen
+and (min-width : 1824px) {
+    #gallows .top {
+        width: 60%;
+    }
+}
