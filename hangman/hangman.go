@@ -106,7 +106,7 @@ GETWORD:
 		Timer:  time.NewTimer(time.Second * 60)}
 	go func() {
 		<-game.Timer.C
-		log.Printf("%s expired: %v\n", game.Game, util.GetFuncName())
+		log.Printf("%v expired: %d\n", util.GetFuncName(), game.Game)
 		if _, ok := theBoys.Episode[game.Game]; ok {
 			delete(theBoys.Episode, game.Game)
 		}

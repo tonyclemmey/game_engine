@@ -19,17 +19,29 @@ Games
 
 The only game written at this time is Hangman. A Python cli and web clients
 are provided. Right now, the game does not end. You may hang your character,
-but you can continue on to solve the word. The Macmillan API is used to
-provide a hint. A running example is at: 
+but you can continue on to solve the word. The Cambridge Dictionary API is 
+used to provide a hint. A running example is at: 
 
 http://richmond.cookgetsitdone.com/hangman.html
+
+In the example above, websocket is listening on port 8080. The Python example
+provided uses this by default.
 
 Configuration
 --------------
 
-There is no configuration capabilities at this time. 
+There are no configuration capabilities at this time. 
 
 Protocol
 --------------
 
-Yet to be documented.
+The protocol is RESTful or Websocket over HTTP and uses JSON structures to
+both send and receive data in a syncronous style.
+
+The flow will look like the following:
+
+Received for a new game - {"Cmd":"NEW","Hint":"a hint to the word","Curr":[0,0,0,0,0,0,0,0,0,0,0],"Missed":[],"Game":36,"Cred":"xxxxxxxxxxxxxxxxxxxxxxx"}
+
+A guess from the client - {"Cmd":"P1T","Play":"r","Gid":36,"Auth":"xxxxxxxxxxxxxxxxxxxxxxx"}
+
+Response from the server - {"Cmd":"P1T","Curr":[0,0,0,0,114,0,0,0,0,0,0],"Missed":[],"Game":36}

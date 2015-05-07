@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>Hangman</title>
     <link rel="stylesheet" type="text/css" href="css/hangman.css" />
-    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
-    <script src="//code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
     <!--[if IE]>
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -70,8 +70,15 @@
             wsocket.send(JSON.stringify(game));
         };
 
+        $("#letter").keyup(function(event){
+            if(event.keyCode == 13){
+                $("#myButton").click();
+            }
+        });
+
         if ("WebSocket" in window) {
-            var wsocket = new WebSocket("ws://richmond.cookgetsitdone.com:8080/wshangman");
+            //var wsocket = new WebSocket("ws://richmond.cookgetsitdone.com:8080/wshangman");
+            var wsocket = new WebSocket("ws://localhost:3000/wshangman");
             wsocket.onopen = function() {
                 newGame();
             };
@@ -106,6 +113,7 @@
                     return tmp;
                 }().join(' ');
                 $("#abstract").effect("shake");
+                $("#letter").val('');
                 MYGAME.execute();
             };
             wsocket.onclose = function() { 
