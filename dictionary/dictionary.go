@@ -283,11 +283,16 @@ func (d *DictEntry) GetDefinition() (error) {
 	var err error
 
 	// Check to see if the word is in the cache
+    log.Println(fmt.Sprintf("%s: checking for %s", util.GetFuncName(), d.Word))
 	request <- d.Word
 	stf := <- outChan
-	if stf != nil && stf.Definition.Valid {
-		d.Definition = stf.Definition.String
-		return nil
+	if stf != nil { // && stf.Definition.Valid {
+        log.Println(fmt.Sprintf("%v"), stf)
+        if stf.Definition.Valid {
+            log.Println(fmt.Sprintf("%s: %s is in cache", util.GetFuncName(), d.Word))
+		    d.Definition = stf.Definition.String
+		    return nil
+        }
 	}
 
 	d.Definition, err = getDefinitionCambridge(d.Word)
@@ -311,7 +316,7 @@ func (d *DictEntry) GetDefinition() (error) {
 			var err4 error
 			d.Definition, err4 = getDefinitionCambridge(d.Word)
 			if err4 != nil {
-				log.Println("err4: %v", err4)
+				log.Println("err4: %s", err4)
 				return errors.New(fmt.Sprintf("%s.getDefinitionCambridge: unable to source word", util.GetFuncName()))
 			}
 		}

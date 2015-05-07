@@ -12,7 +12,9 @@ Author: Justin Cook <jhcook@gmail.com>
 package cache_sqlite
 
 import (
+    "github.com/jhcook/game_engine/util"
 	"database/sql"
+    "fmt"
     "log"
     "time"
 	_ "github.com/mattn/go-sqlite3"
@@ -58,11 +60,11 @@ func DefinitionWriter(inDefs chan []string, reqs chan string,
         reqs <- iStf[0]
         wrd := <- outDefs
         if wrd != nil {
-            log.Printf("exists: %s\n", wrd.Word.String)
+            log.Println(fmt.Sprintf("%s: %s exists", util.GetFuncName(), wrd.Word.String))
             continue
         }
 
-        log.Printf("inserting: %s\n", iStf[0])
+        log.Println(fmt.Sprintf("%s: inserting %s", util.GetFuncName(), iStf[0]))
 		tx, cerr = dbw.Begin()
 		if cerr != nil {
 			panic(cerr)
@@ -105,7 +107,7 @@ func DefinitionReader(reqs chan string, oDefs chan *WordDefinition) {
 			var word, definition sql.NullString
 
 			if err := rows.Scan(&uid, &word, &definition, &tcreated); err != nil {
-				log.Println("%q\n", err)
+				log.Println(fmt.Sprintf("%s: %q", util.GetFuncName(), err))
 				continue
 			}
             result = append(result, WordDefinition{uid, word, definition, tcreated})
