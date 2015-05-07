@@ -111,7 +111,7 @@ GETWORD:
 	}
 
 	// Remove the word from the hint
-	re, _ := regexp.Compile(dictEntry.Word + `[\w']*`)
+	re, _ := regexp.Compile("(?i)" + dictEntry.Word + `[\w']*`)
 	res2 := re.ReplaceAllString(dictEntry.Definition, "-----")
 
 	game := &hangman{
