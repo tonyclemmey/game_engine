@@ -73,7 +73,17 @@ func createRuneArray(wrd string) []rune {
             stuff[ind] = runeCh
         }
     }
-    return stuff
+    /* This is ugly, but it is necessary to check the end of the word since
+       multiple codes are provided when a word may be a noun, verb, etc. */
+    var i int
+    for i = len(stuff); i>=0; i-- {
+        if stuff[i-1] != 0 {
+            continue
+        } else {
+            break
+        }
+    }
+    return stuff[:i]
 }
 
 // Create a new game of hangman, add it to the singleton 'theBoys' and return
