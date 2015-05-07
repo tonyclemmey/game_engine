@@ -3,6 +3,7 @@ package util
 import (
 	"bytes"
 	"strconv"
+    "unicode"
 	"unicode/utf8"
 	"crypto/rand"
 	"runtime"
@@ -19,6 +20,15 @@ func StringToRuneArray(str string) []rune {
 			ri++
 		}
 	}
+    /* This is ugly, but it is necessary to check the end of the word since
+       multiple codes are provided when a word may be a noun, verb, etc. */
+    for ; ri>=0; ri-- {
+        if !unicode.In(rval[ri-1], unicode.Latin) {
+            continue
+        } else {
+            break
+        }
+    }
 	return rval[:ri]
 }
 

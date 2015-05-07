@@ -120,7 +120,7 @@ GETWORD:
 		WrdUni: util.StringToRuneArray(dictEntry.Word),
 //		Right:  make([]rune, len(dictEntry.Word)),
         Right:  createRuneArray(dictEntry.Word),
-		Wrong:  make([]rune, 0, 256),
+		Wrong:  make([]rune, 0, 6),
 		Game:   theBoys.Games,
 		Cmd:    "NEW",
 		P1cred: util.Rand_str(64),
@@ -215,14 +215,21 @@ func (msg *Message) play() interface{} {
 		}{"unknown command"}
 	}
 
+    var right []rune
 	if answer == nil {
 		// Use an anonymous structure to sanitize the data sent back.
+        if len(game.Wrong) >5 {
+            cmd = "FIN"
+            right = game.WrdUni
+        } else {
+            right = game.Right
+        }
 		answer = struct {
-			Cmd    string
+		    Cmd    string
 			Curr   []rune
-			Missed []rune
+	    	Missed []rune
 			Game   uint64
-		}{cmd, game.Right, game.Wrong, game.Game}
+    	}{cmd, right, game.Wrong, game.Game}
 	}
 	return answer
 }
