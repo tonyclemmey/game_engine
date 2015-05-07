@@ -58,11 +58,22 @@ type men struct {
 // be singleton.
 func NewMen() {
 	if theBoys != nil {
-		log.Printf("%s: already instantiated\n", util.GetFuncName())
+		log.Println(util.GetFuncName(), ": already instantiated")
 		return
 	}
 	dict = dictionary.NewDictionary("")
 	theBoys = &men{Episode: make(map[uint64]*hangman)}
+}
+
+// This function returns a rune array with non-Latin characters filled in
+func createRuneArray(wrd string) []rune {
+    stuff := make([]rune, len(wrd))
+    for ind, runeCh := range wrd {
+        if !unicode.In(runeCh, unicode.Latin) {
+            stuff[ind] = runeCh
+        }
+    }
+    return stuff
 }
 
 // Create a new game of hangman, add it to the singleton 'theBoys' and return
@@ -97,7 +108,8 @@ GETWORD:
 		Word:   dictEntry.Word,
 		Defo:   res2,
 		WrdUni: util.StringToRuneArray(dictEntry.Word),
-		Right:  make([]rune, len(dictEntry.Word)),
+//		Right:  make([]rune, len(dictEntry.Word)),
+        Right:  createRuneArray(dictEntry.Word),
 		Wrong:  make([]rune, 0, 256),
 		Game:   theBoys.Games,
 		Cmd:    "NEW",
