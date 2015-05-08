@@ -75,9 +75,11 @@
 
         document.getElementById("finalGuess").onclick = function() {
             var answer;
-            do {
-                answer = prompt("Final guess: ");
+            stf = function() { answer = prompt("Final guess: "); };
+            do {         // Oh why do you do this iOS Safari?
+                setTimeout(stf(), 0);
             } while(answer.length < 1);
+            console.log(answer);
             game = {Cmd: "FIN", Play: answer, Gid: MYGAME.game, Auth: MYGAME.auth};
             console.log("Sending: " + JSON.stringify(game));
             wsocket.send(JSON.stringify(game));
