@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>Hangman</title>
     <link rel="stylesheet" type="text/css" href="css/hangman.css" />
-    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-    <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
     <!--[if IE]>
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -36,6 +36,7 @@
         <input id="letter" maxlength="1" size="1" />
         <button id="myButton">Submit</button>
         <button id="newGame">New Game</button>
+	<button id="finalGuess">Final Guess</button>
     </div>
   </body>
     <script>
@@ -55,17 +56,27 @@
                     newGame();
                 }
             },
-            reset:        function() {
+            reset:      function() {
                 var sk = this.killStages.slice(1, this.killStages.length)
                 for (i in sk) {
                     document.getElementById(sk[i]).style.display = "none";
                 }
             }
         }
-    
+
         document.getElementById("myButton").onclick = function() {
             guess = document.getElementById("letter").value;
             game = {Cmd: "P1T", Play: guess, Gid: MYGAME.game, Auth: MYGAME.auth};
+            console.log("Sending: " + JSON.stringify(game));
+            wsocket.send(JSON.stringify(game));
+        };
+
+        document.getElementById("finalGuess").onclick = function() {
+            var answer;
+            do {
+                answer = prompt("Final guess: ");
+            } while(answer.length < 1);
+            game = {Cmd: "FIN", Play: answer, Gid: MYGAME.game, Auth: MYGAME.auth};
             console.log("Sending: " + JSON.stringify(game));
             wsocket.send(JSON.stringify(game));
         };
@@ -77,8 +88,7 @@
         });
 
         if ("WebSocket" in window) {
-            //var wsocket = new WebSocket("ws://richmond.cookgetsitdone.com:8080/wshangman");
-            var wsocket = new WebSocket("ws://localhost:3000/wshangman");
+            var wsocket = new WebSocket("ws://richmond.cookgetsitdone.com/wshangman");
             wsocket.onopen = function() {
                 newGame();
             };
@@ -129,5 +139,6 @@
         }
 
         document.getElementById("newGame").onclick = newGame;
+
     </script>
 </html>

@@ -188,7 +188,14 @@ func (msg *Message) play() interface{} {
 		if _, ok = theBoys.Episode[msg.Gid]; ok {
 			if game = game.checkAuth(msg.Gid, msg.Auth); game != nil {
 				cmd = "P1T"
-				game.evalChar(msg.Play)
+                // msg.Play length should be one char
+                if len(msg.Play) == 1 {
+				    game.evalChar(msg.Play)
+                } else {
+                    answer = struct {
+                        Error string
+                    }{"incorrect number of characters attempted"}
+                }
 			} else {
 				answer = struct {
 					Error string
@@ -199,6 +206,31 @@ func (msg *Message) play() interface{} {
 				Error string
 			}{"unknown game id"}
 		}
+
+    /* In the case where the user tries to guess the word, the "FIN" command
+       is sent along with the string version of the answer. */
+    case "FIN":
+        if _, ok = theBoys.Episode[msg.Gid]; ok {
+            if game = game.checkAuth(msg.Gid, msg.Auth); game != nil {
+                cmd = "FIN"
+                for i, w := 0, 0; i < len(msg.Play); i += w {
+                    runeValue, width := utf8.DecodeRuneInString(msg.Play[i:])
+                    if !game.evalChar(string(runeValue)) {
+                        answer = nil
+                    }
+                    w = width
+                }
+                game.evalChar(msg.Play)
+            } else {
+                answer = struct {
+                    Error string
+                }{"unauthorized"}
+            }
+        } else {
+            answer = struct {
+                Error string
+            }{"unknown game id"}
+        }
 
 	case "STATUS":
 		if game = game.checkAuth(msg.Gid, msg.Auth); game != nil {
@@ -219,6 +251,9 @@ func (msg *Message) play() interface{} {
 	if answer == nil {
 		// Use an anonymous structure to sanitize the data sent back.
         if len(game.Wrong) >5 {
+            cmd = "FIN"
+            right = game.WrdUni
+        } else if cmd == "FIN" {
             cmd = "FIN"
             right = game.WrdUni
         } else {
