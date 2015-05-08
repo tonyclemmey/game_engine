@@ -64,6 +64,8 @@
             }
         }
 
+        var wsocket;
+
         document.getElementById("myButton").onclick = function() {
             guess = document.getElementById("letter").value;
             game = {Cmd: "P1T", Play: guess, Gid: MYGAME.game, Auth: MYGAME.auth};
@@ -88,10 +90,13 @@
         });
 
         if ("WebSocket" in window) {
-            var wsocket = new WebSocket("ws://richmond.cookgetsitdone.com/wshangman");
+            url = "richmond.cookgetsitdone.com/wshangman";
+            var isSafari = navigator.vendor.indexOf("Apple")==0 && /\sSafari\//.test(navigator.userAgent);
+            wsocket = isSafari ? new WebSocket("ws://" + url) : new WebSocket("wss://" + url);
             wsocket.onopen = function() {
                 newGame();
             };
+
             wsocket.onmessage = function (event) { 
                 var msg = JSON.parse(event.data);
                 console.log("Received: " + event.data);
