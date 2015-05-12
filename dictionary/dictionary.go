@@ -51,9 +51,9 @@ func readLines(path string) ([]string, error) {
 		line := scanner.Text()
 		if match, _ := regexp.MatchString("^[A-Za-z]{5,}$", line); match {
 			lines = append(lines, scanner.Text())
-		} else {
+		} /*else {
 			log.Println(line, "doesn't match")
-		}
+		} */
 	}
 	return lines, scanner.Err()
 }
@@ -267,6 +267,22 @@ func getDefinitionCambridge(wrd string) (string, error) {
 	}
 }
 
+// Check to see if the word is in the cache
+func (d *DictEntry) checkCache() error {
+    log.Printf("%s: checking for %s", util.GetFuncName(), d.Word)
+    request <- d.Word
+    stf := <- outChan
+    if stf != nil { // && stf.Definition.Valid {
+        log.Println(fmt.Sprintf("%v"), stf)
+        if stf.Definition.Valid {
+            log.Println(fmt.Sprintf("%s: %s is in cache", util.GetFuncName(), d.Word))
+            d.Definition = stf.Definition.String
+            return nil
+        }
+    }
+    return errors.New(fmt.Sprintf("%s: %s not in cache", util.GetFuncName(), d.Word))
+}
+
 /*
 This is the function that performs the orchestration using the Cambridge
 remote dictionary API.
@@ -279,23 +295,14 @@ func (d *DictEntry) GetDefinition() (error) {
 		return "", errors.New(fmt.Sprintf("%s: unknown error", util.GetFuncName()))
 	}()
 
-	// Get dictionary entry
-	var err error
-
+    var err error
 	// Check to see if the word is in the cache
-    log.Println(fmt.Sprintf("%s: checking for %s", util.GetFuncName(), d.Word))
-	request <- d.Word
-	stf := <- outChan
-	if stf != nil { // && stf.Definition.Valid {
-        log.Println(fmt.Sprintf("%v"), stf)
-        if stf.Definition.Valid {
-            log.Println(fmt.Sprintf("%s: %s is in cache", util.GetFuncName(), d.Word))
-		    d.Definition = stf.Definition.String
-		    return nil
-        }
-	}
-
-	d.Definition, err = getDefinitionCambridge(d.Word)
+    if err = d.checkCache(); err != nil {
+        log.Println(err)
+	    d.Definition, err = getDefinitionCambridge(d.Word)
+    } else {
+        return nil
+    }
 
 	/* If successful: content received. Otherwise, perform inflection and
 	 * search for any matching words.
@@ -313,12 +320,13 @@ func (d *DictEntry) GetDefinition() (error) {
 				return errors.New(fmt.Sprintf("%s.searchCambridge: unable to source words", util.GetFuncName()))
 			}
 			d.Word = wrds2[0].(map[string]interface{})["entryId"].(string)
-			var err4 error
-			d.Definition, err4 = getDefinitionCambridge(d.Word)
-			if err4 != nil {
-				log.Println("err4: %s", err4)
-				return errors.New(fmt.Sprintf("%s.getDefinitionCambridge: unable to source word", util.GetFuncName()))
-			}
+            if err5 := d.checkCache(); err5 != nil {
+                var err4 error
+			    if d.Definition, err4 = getDefinitionCambridge(d.Word); err4 != nil {
+				    log.Println("err4: %s", err4)
+				    return errors.New(fmt.Sprintf("%s.getDefinitionCambridge: unable to source word", util.GetFuncName()))
+			    }
+            }
 		}
 	}
 	dent := []string{d.Word, d.Definition}
