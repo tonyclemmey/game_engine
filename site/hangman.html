@@ -36,7 +36,7 @@
         <input id="letter" maxlength="1" size="1" />
         <button id="myButton">Submit</button>
         <button id="newGame">New Game</button>
-	<button id="finalGuess">Final Guess</button>
+	<button onclick=finalGuess() id="finalGuess">Final Guess</button>
     </div>
   </body>
     <script>
@@ -73,7 +73,7 @@
             wsocket.send(JSON.stringify(game));
         };
 
-        document.getElementById("finalGuess").onclick = function() {
+        function finalGuess() {
             var answer;
             stf = function() { answer = prompt("Final guess: "); };
             do {         // Oh why do you do this iOS Safari?
