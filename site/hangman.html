@@ -7,8 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>Hangman</title>
     <link rel="stylesheet" type="text/css" href="css/hangman.css" />
-    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
-    <script src="//code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
     <!--[if IE]>
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -38,114 +36,25 @@
         <button id="newGame">New Game</button>
 	<button onclick=finalGuess() id="finalGuess">Final Guess</button>
     </div>
-  </body>
-    <script>
-        var MYGAME = {
-            killStages: ["", "head", "body", "lefth", "righth", "leftf", "rightf"],
-            hint:       '',
-            curr:       [],
-            missed:     [],
-            game:       0, 
-            auth:       '',
-            execute:      function() {
-                try {
-                    if (this.missed.length > 0) {
-                        document.getElementById(this.killStages[this.missed.length]).style.display = "block";
-                    }
-                } catch(err) {
-                    newGame();
-                }
-            },
-            reset:      function() {
-                var sk = this.killStages.slice(1, this.killStages.length)
-                for (i in sk) {
-                    document.getElementById(sk[i]).style.display = "none";
-                }
-            }
+
+    <script type="text/javascript">
+        function downloadJSAtOnload() {
+            var element1 = document.createElement("script");
+            element1.src = "//code.jquery.com/jquery-1.10.2.js";
+            var element2 = document.createElement("script");
+            element2.src = "//code.jquery.com/ui/1.11.1/jquery-ui.js";
+            document.body.appendChild(element1);
+            document.body.appendChild(element2);
+            var element3 = document.createElement("script");
+            element3.src = "//richmond.cookgetsitdone.com/js/hangman.js";
+            document.body.appendChild(element3);
         }
-
-        var wsocket;
-
-        document.getElementById("myButton").onclick = function() {
-            guess = document.getElementById("letter").value;
-            game = {Cmd: "P1T", Play: guess, Gid: MYGAME.game, Auth: MYGAME.auth};
-            console.log("Sending: " + JSON.stringify(game));
-            wsocket.send(JSON.stringify(game));
-        };
-
-        function finalGuess() {
-            var answer;
-            stf = function() { answer = prompt("Final guess: "); };
-            do {         // Oh why do you do this iOS Safari?
-                setTimeout(stf(), 0);
-            } while(answer.length < 1);
-            console.log(answer);
-            game = {Cmd: "FIN", Play: answer, Gid: MYGAME.game, Auth: MYGAME.auth};
-            console.log("Sending: " + JSON.stringify(game));
-            wsocket.send(JSON.stringify(game));
-        };
-
-        $("#letter").keyup(function(event){
-            if(event.keyCode == 13){
-                $("#myButton").click();
-            }
-        });
-
-        if ("WebSocket" in window) {
-            url = "richmond.cookgetsitdone.com/wshangman";
-            var isSafari = navigator.vendor.indexOf("Apple")==0 && /\sSafari\//.test(navigator.userAgent);
-            wsocket = isSafari ? new WebSocket("ws://" + url) : new WebSocket("wss://" + url);
-            wsocket.onopen = function() {
-                newGame();
-            };
-
-            wsocket.onmessage = function (event) { 
-                var msg = JSON.parse(event.data);
-                console.log("Received: " + event.data);
-                switch (msg.Cmd) {
-                    case "NEW":
-                        MYGAME.hint = msg.Hint;
-                        MYGAME.auth = msg.Cred; 
-                        MYGAME.game = msg.Game;
-                        document.getElementById("hint").innerHTML = MYGAME.hint;
-                        break;
-                }
-                MYGAME.curr = function() { 
-                    var tmp = [];
-                    for (i in msg.Curr) {
-                        tmp[i] = String.fromCharCode(msg.Curr[i])
-                    }
-                    return tmp;
-                }();
-                MYGAME.missed = msg.Missed;
-                document.getElementById("abstract").innerHTML = function() {
-                    var tmp = [];
-                    for (i in MYGAME.curr) {
-                        if (MYGAME.curr[i] === "\00") {
-                            tmp[i] = '\u2610';
-                        } else {
-                            tmp[i] = MYGAME.curr[i];
-                        }
-                    }
-                    return tmp;
-                }().join(' ');
-                $("#abstract").effect("shake");
-                $("#letter").val('');
-                MYGAME.execute();
-            };
-            wsocket.onclose = function() { 
-                console.log("Connection is closed..."); 
-            };
-        } else {
-            var wsocket = ''
-        }
-
-        function newGame() {
-            wsocket.send(JSON.stringify({Cmd: "NEW"}));
-            MYGAME.reset();
-        }
-
-        document.getElementById("newGame").onclick = newGame;
-
+        if (window.addEventListener)
+            window.addEventListener("load", downloadJSAtOnload, false);
+        else if (window.attachEvent)
+            window.attachEvent("onload", downloadJSAtOnload);
+            else window.onload = downloadJSAtOnload;
     </script>
+
+  </body>
 </html>
