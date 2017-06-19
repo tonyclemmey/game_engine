@@ -10,19 +10,19 @@ Author: Justin Cook <jhcook@gmail.com>
 package dictionary
 
 import (
-	"github.com/jhcook/game_engine/dictionary/cache_sqlite"
-	"github.com/jhcook/game_engine/util"
-	"fmt"
 	"bufio"
 	"encoding/json"
 	"errors"
-	"time"
+	"fmt"
+	"github.com/jhcook/game_engine/dictionary/cache_sqlite"
+	"github.com/jhcook/game_engine/util"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"regexp"
 	"reflect"
+	"regexp"
+	"time"
 )
 
 type Dictionary struct {
@@ -80,14 +80,13 @@ func (d *Dictionary) NextWord() string {
 	return d.Word
 }
 
-
 var ak string = "__AK__"
 var aid string = "__AID__"
 var url string = "https://od-api.oxforddictionaries.com:443/api/v1"
 
 type DictEntry struct {
-	Word        string
-	Definition  string
+	Word       string
+	Definition string
 }
 
 /*
@@ -122,7 +121,7 @@ func getDefinitionOxford(wrd string) (string, error) {
 	req, err := http.NewRequest("GET", url+api+wrd+opts, nil)
 	//req.Header.Set("Host", "dictionary.oxford.org")
 	req.Header.Set("Accept", "application/json")
-    req.Header.Set("app_id", aid)
+	req.Header.Set("app_id", aid)
 	req.Header.Set("app_key", ak)
 
 	res, err := httpClient.Do(req)
@@ -144,88 +143,88 @@ func getDefinitionOxford(wrd string) (string, error) {
 
 	// The entry exists so parse json for definition -- yes this is ugly
 	// results
-    s := reflect.ValueOf(msg["results"])
-    results := make([]interface{}, s.Len())
-    for i := range msg["results"].([]interface{}) {
-        results[i] = s.Index(i).Interface()
-    }
-    
-    s = reflect.ValueOf(results[0])
-    firstResult := make(map[string]interface{}, s.Len())
-    for k, v := range results[0].(map[string]interface{}) {
-        firstResult[k] = v
-    }
-    
-    // lexicalEntries
-    s = reflect.ValueOf(firstResult["lexicalEntries"])    
-    lexicalEntries := make([]interface{}, s.Len())
-    for i := range firstResult["lexicalEntries"].([]interface{}) {
-        lexicalEntries[i] = s.Index(i).Interface()
-    }
-        
-    s = reflect.ValueOf(lexicalEntries[0])
-    firstLexicalEntry := make(map[string]interface{}, s.Len())
-    for k, v := range lexicalEntries[0].(map[string]interface{}) {
-        firstLexicalEntry[k] = v
-    }
-        
-    // entries
-    s = reflect.ValueOf(firstLexicalEntry["entries"])
-    entries := make([]interface{}, s.Len())
-    for i := range firstLexicalEntry["entries"].([]interface{}) {
-        entries[i] = s.Index(i).Interface()
-    }
-        
-    s = reflect.ValueOf(entries[0])
-    firstEntry := make(map[string]interface{}, s.Len())
-    for k, v := range entries[0].(map[string]interface{}) {
-        firstEntry[k] = v
-    }
+	s := reflect.ValueOf(msg["results"])
+	results := make([]interface{}, s.Len())
+	for i := range msg["results"].([]interface{}) {
+		results[i] = s.Index(i).Interface()
+	}
 
-    // senses
-    s = reflect.ValueOf(firstEntry["senses"])
-    senses := make([]interface{}, s.Len())
-    for i := range firstEntry["senses"].([]interface{}) {
-        senses[i] = s.Index(i).Interface()
-    }
-        
-    s = reflect.ValueOf(senses[0])
-    firstSense := make(map[string]interface{}, s.Len())
-    for k, v := range senses[0].(map[string]interface{}) {
-        firstSense[k] = v
-    }    
+	s = reflect.ValueOf(results[0])
+	firstResult := make(map[string]interface{}, s.Len())
+	for k, v := range results[0].(map[string]interface{}) {
+		firstResult[k] = v
+	}
 
-    // definitions
-    s = reflect.ValueOf(firstSense["definitions"])
-    definitions := make([]interface{}, s.Len())
-    for i := range firstSense["definitions"].([]interface{}) {
-        definitions[i] = s.Index(i).Interface()
-    }
-    
-    return definitions[0].(string), err
+	// lexicalEntries
+	s = reflect.ValueOf(firstResult["lexicalEntries"])
+	lexicalEntries := make([]interface{}, s.Len())
+	for i := range firstResult["lexicalEntries"].([]interface{}) {
+		lexicalEntries[i] = s.Index(i).Interface()
+	}
+
+	s = reflect.ValueOf(lexicalEntries[0])
+	firstLexicalEntry := make(map[string]interface{}, s.Len())
+	for k, v := range lexicalEntries[0].(map[string]interface{}) {
+		firstLexicalEntry[k] = v
+	}
+
+	// entries
+	s = reflect.ValueOf(firstLexicalEntry["entries"])
+	entries := make([]interface{}, s.Len())
+	for i := range firstLexicalEntry["entries"].([]interface{}) {
+		entries[i] = s.Index(i).Interface()
+	}
+
+	s = reflect.ValueOf(entries[0])
+	firstEntry := make(map[string]interface{}, s.Len())
+	for k, v := range entries[0].(map[string]interface{}) {
+		firstEntry[k] = v
+	}
+
+	// senses
+	s = reflect.ValueOf(firstEntry["senses"])
+	senses := make([]interface{}, s.Len())
+	for i := range firstEntry["senses"].([]interface{}) {
+		senses[i] = s.Index(i).Interface()
+	}
+
+	s = reflect.ValueOf(senses[0])
+	firstSense := make(map[string]interface{}, s.Len())
+	for k, v := range senses[0].(map[string]interface{}) {
+		firstSense[k] = v
+	}
+
+	// definitions
+	s = reflect.ValueOf(firstSense["definitions"])
+	definitions := make([]interface{}, s.Len())
+	for i := range firstSense["definitions"].([]interface{}) {
+		definitions[i] = s.Index(i).Interface()
+	}
+
+	return definitions[0].(string), err
 }
 
 // Check to see if the word is in the cache
 func (d *DictEntry) checkCache() error {
-    log.Printf("%s: checking for %s", util.GetFuncName(), d.Word)
-    request <- d.Word
-    stf := <- outChan
-    if stf != nil { // && stf.Definition.Valid {
-        log.Println(fmt.Sprintf("%v"), stf)
-        if stf.Definition.Valid {
-            log.Println(fmt.Sprintf("%s: %s is in cache", util.GetFuncName(), d.Word))
-            d.Definition = stf.Definition.String
-            return nil
-        }
-    }
-    return errors.New(fmt.Sprintf("%s: %s not in cache", util.GetFuncName(), d.Word))
+	log.Printf("%s: checking for %s", util.GetFuncName(), d.Word)
+	request <- d.Word
+	stf := <-outChan
+	if stf != nil { // && stf.Definition.Valid {
+		log.Println(fmt.Sprintf("%v"), stf)
+		if stf.Definition.Valid {
+			log.Println(fmt.Sprintf("%s: %s is in cache", util.GetFuncName(), d.Word))
+			d.Definition = stf.Definition.String
+			return nil
+		}
+	}
+	return errors.New(fmt.Sprintf("%s: %s not in cache", util.GetFuncName(), d.Word))
 }
 
 /*
 This is the function that performs the orchestration using the Oxford
 remote dictionary API.
 */
-func (d *DictEntry) GetDefinition() (error) {
+func (d *DictEntry) GetDefinition() error {
 	defer func() (string, error) {
 		if r := recover(); r != nil {
 			return "", errors.New(fmt.Sprintf("%s: unable to source", util.GetFuncName()))
@@ -233,18 +232,16 @@ func (d *DictEntry) GetDefinition() (error) {
 		return "", errors.New(fmt.Sprintf("%s: unknown error", util.GetFuncName()))
 	}()
 
-    var err error
+	var err error
 	// Check to see if the word is in the cache
-    if err = d.checkCache(); err != nil {
-        log.Println(err)
-	    d.Definition, err = getDefinitionOxford(d.Word)
-    } else {
-        return nil
-    }
+	if err = d.checkCache(); err != nil {
+		log.Println(err)
+		d.Definition, err = getDefinitionOxford(d.Word)
+	} else {
+		return nil
+	}
 
 	dent := []string{d.Word, d.Definition}
 	inpChan <- dent
 	return nil
 }
-
-
