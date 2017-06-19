@@ -1,0 +1,17 @@
+#!/bin/bash -e
+# The s2i assembler for game_engine
+# `s2i build . golang:1.8 hangman --runtime-image rhel7 --runtime-artifact \
+# /tmp/src/hangman_engine -s file://.s2i/bin`
+#
+# Author: Justin Cook <jhcook@secnix.com>
+
+set -x
+
+cd /tmp/src
+
+go-wrapper download
+
+sed -i "s/__AK__/$__AK__/" dictionary/dictionary.go
+sed -i "s/__AID__/$__AID__/" dictionary/dictionary.go
+
+go build -o hangman_engine

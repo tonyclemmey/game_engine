@@ -1,0 +1,3 @@
+#!/bin/bash -e
+
+exec hangman_engine
