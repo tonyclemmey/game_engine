@@ -4,9 +4,9 @@ import (
 	"github.com/jhcook/game_engine/hangman"
 	"log"
 	"net/http"
-	"code.google.com/p/go.net/websocket"
-    "math/rand"
-    "time"
+	"golang.org/x/net/websocket"
+	"math/rand"
+	"time"
 )
 
 func apiHandler(next http.Handler) http.HandlerFunc {
