@@ -1,12 +1,10 @@
 #!/bin/bash -e
 
-export APP_ROOT="/opt/app-root"
-
 export USER_ID=$(id -u)
 export GROUP_ID=$(id -g)
-envsubst < ${APP_ROOT}/passwd.template > ${APP_ROOT}/passwd
+envsubst < ${HOME}/passwd.template > /tmp/passwd
 export LD_PRELOAD=libnss_wrapper.so
-export NSS_WRAPPER_PASSWD=${APP_ROOT}/passwd
+export NSS_WRAPPER_PASSWD=/tmp/passwd
 export NSS_WRAPPER_GROUP=/etc/group
 
 exec hangman_engine

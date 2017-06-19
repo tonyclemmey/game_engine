@@ -18,7 +18,7 @@ RUN yum-config-manager --disable rhel-7-server-rt-rpms && \
     chmod -R g+rwX /opt/app-root && \
     yum clean all
 
-COPY passwd.template /opt/app-root/passwd.template
+COPY passwd.template /home/hangman/passwd.template
 
 WORKDIR /opt/app-root
 
