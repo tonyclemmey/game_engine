@@ -6,7 +6,12 @@ LABEL io.k8s.description="Platform for receiving artefacts from s2i" \
 
 COPY ./.s2i/bin/ /usr/local/s2i
 
-RUN mkdir -p /opt/app-root ; chown -R 1001:1001 /opt/app-root
+RUN yum install -y --setopt=tsflags=nodocs sudo nss_wrapper gettext && \
+     useradd -u 1001 hangman && echo "hangman ALL = (ALL) NOPASSWD: ALL" > \
+    /etc/sudoers.d/hangman_conf && chmod 0440 /etc/sudoers.d/hangman_conf && \
+    mkdir -p /opt/app-root && chgrp -R 0 /opt/app-root && chmod -R g+rwX \
+    /opt/app-root && yum clean all
+
 WORKDIR /opt/app-root
 
 USER 1001
