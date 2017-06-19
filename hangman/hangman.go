@@ -8,7 +8,7 @@ Author: Justin Cook <jhcook@gmail.com>
 package hangman
 
 import (
-	"code.google.com/p/go.net/websocket"
+	"golang.org/x/net/websocket"
 	"encoding/json"
 	"github.com/jhcook/game_engine/dictionary"
 	"github.com/jhcook/game_engine/util"
