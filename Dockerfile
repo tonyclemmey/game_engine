@@ -6,12 +6,17 @@ LABEL io.k8s.description="Platform for receiving artefacts from s2i" \
 
 COPY ./.s2i/bin/ /usr/local/s2i
 
-RUN yum install -y --enablerepo rhel-server-rhscl-7-rpms \
-    --setopt=tsflags=nodocs sudo nss_wrapper gettext && \
-    useradd -u 1001 hangman && echo "hangman ALL = (ALL) NOPASSWD: ALL" > \
-    /etc/sudoers.d/hangman_conf && chmod 0440 /etc/sudoers.d/hangman_conf && \
-    mkdir -p /opt/app-root && chgrp -R 0 /opt/app-root && chmod -R g+rwX \
-    /opt/app-root && yum clean all
+RUN yum-config-manager --enable rhel-server-rhscl-7-rpms && \
+    yum-config-manager --disable rhel-7-server-rt-rpms && \
+    yum-config-manager --disable rhel-7-server-rt-beta-rpms && \
+    yum install -y --setopt=tsflags=nodocs sudo nss_wrapper gettext && \
+    useradd -u 1001 hangman && \
+    echo "hangman ALL = (ALL) NOPASSWD: ALL" > /etc/sudoers.d/hangman_conf && \
+    chmod 0440 /etc/sudoers.d/hangman_conf && \
+    mkdir -p /opt/app-root && \
+    chgrp -R 0 /opt/app-root && \
+    chmod -R g+rwX /opt/app-root && \
+    yum clean all
 
 COPY passwd.template /opt/app-root/passwd.template
 
