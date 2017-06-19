@@ -12,6 +12,8 @@ RUN yum install -y --setopt=tsflags=nodocs sudo nss_wrapper gettext && \
     mkdir -p /opt/app-root && chgrp -R 0 /opt/app-root && chmod -R g+rwX \
     /opt/app-root && yum clean all
 
+COPY passwd.template /opt/app-root/passwd.template
+
 WORKDIR /opt/app-root
 
 USER 1001
