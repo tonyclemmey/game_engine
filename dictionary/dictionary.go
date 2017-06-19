@@ -12,7 +12,6 @@ package dictionary
 import (
 	"github.com/jhcook/game_engine/dictionary/cache_sqlite"
 	"github.com/jhcook/game_engine/util"
-	"./creds"
 	"fmt"
 	"bufio"
 	"encoding/json"
