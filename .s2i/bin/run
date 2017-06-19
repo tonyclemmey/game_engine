@@ -7,4 +7,4 @@ export LD_PRELOAD=libnss_wrapper.so
 export NSS_WRAPPER_PASSWD=/tmp/passwd
 export NSS_WRAPPER_GROUP=/etc/group
 
-exec hangman_engine
+exec /opt/app-root/hangman_engine
