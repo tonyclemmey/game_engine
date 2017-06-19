@@ -1,7 +1,9 @@
 #!/bin/bash -e
 # The s2i assembler for game_engine
-# `s2i build . golang:1.8 hangman --runtime-image rhel7 --runtime-artifact \
-# /tmp/src/hangman_engine -s file://.s2i/bin`
+#
+# `s2i build . golang:1.8 hangman --runtime-image base-rhel7 --runtime-artifact \
+# /tmp/src/hangman_engine -s file://./.s2i/bin --environment-file \
+# file://./.s2i/environment`
 #
 # Author: Justin Cook <jhcook@secnix.com>
 
