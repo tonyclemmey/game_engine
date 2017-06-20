@@ -50,7 +50,7 @@ $("#letter").keyup(function(event){
 });
 
 if ("WebSocket" in window) {
-    url = "richmond.cookgetsitdone.com/wshangman";
+    url = "localhost:8080/wshangman";
     var isSafari = navigator.vendor.indexOf("Apple")==0 && /\sSafari\//.test(navigator.userAgent);
     wsocket = isSafari ? new WebSocket("ws://" + url) : new WebSocket("wss://" + url);
     wsocket.onopen = function() {

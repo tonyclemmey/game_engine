@@ -45,5 +45,5 @@ Build completed successfully
 
 The image can now be ran as follows:
 ```
-$ docker run -p 3000:3000 hangman
+$ docker run -p 3000:3000 --name hangman hangman
 ```
