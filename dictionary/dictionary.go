@@ -136,7 +136,7 @@ func getDefinitionOxford(wrd string) (string, error) {
 
 	if err := json.Unmarshal(body, &msg); err != nil {
 		log.Println(fmt.Sprintf("%s: %s", util.GetFuncName(), err))
-		fmt.Println(body.(string))
+		fmt.Println(string(body))
 		return "", err
 	} else {
 		res.Body.Close()
