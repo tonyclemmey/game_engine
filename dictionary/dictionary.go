@@ -80,8 +80,8 @@ func (d *Dictionary) NextWord() string {
 	return d.Word
 }
 
-var ak string = "__AK__"
-var aid string = "__AID__"
+var ak string = os.Getenv("__AK__")
+var aid string = os.Getenv("__AID__")
 var url string = "https://od-api.oxforddictionaries.com:443/api/v1"
 
 type DictEntry struct {
@@ -136,7 +136,7 @@ func getDefinitionOxford(wrd string) (string, error) {
 
 	if err := json.Unmarshal(body, &msg); err != nil {
 		log.Println(fmt.Sprintf("%s: %s", util.GetFuncName(), err))
-		fmt.Println(body)
+		fmt.Println(body.(string))
 		return "", err
 	} else {
 		res.Body.Close()
