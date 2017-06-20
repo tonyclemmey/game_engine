@@ -12,8 +12,4 @@ set -x
 cd /tmp/src
 
 go-wrapper download
-
-sed -i "s/__AK__/$__AK__/" dictionary/dictionary.go
-sed -i "s/__AID__/$__AID__/" dictionary/dictionary.go
-
 go build -o hangman_engine
