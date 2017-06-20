@@ -4,8 +4,6 @@ LABEL io.k8s.description="Platform for receiving artefacts from s2i" \
       io.openshift.s2i.scripts-url="image:///usr/local/s2i" \
       maintainer="Justin Cook jhcook@secnix.com"
 
-COPY ./.s2i/bin/ /usr/local/s2i
-
 RUN yum-config-manager --disable rhel-7-server-rt-rpms && \
     yum-config-manager --disable rhel-7-server-rt-beta-rpms && \
     yum install -y --enablerepo rhel-server-rhscl-7-rpms \
