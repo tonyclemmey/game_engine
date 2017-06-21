@@ -84,16 +84,14 @@ to Docker, tag the images, and push to the registry.
 $ sudo docker login 172.30.1.1:5000 -u pusher -p eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJteXByb2plY3QiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlY3JldC5uYW1lIjoicHVzaGVyLXRva2VuLWc3c3NxIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6InB1c2hlciIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6ImUwYmNhMjkzLTU1ZGEtMTFlNy04YTkzLTA4MDAyNzAyNmZmZCIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpteXByb2plY3Q6cHVzaGVyIn0.QgqN3QXh484ykCwpSAEOOaOk5aZToHf2IOhE0TdWQRhunk5fjlOXhVAEpvhlhwZxMXn2QWsPxO2HISd96-Jy7MeWnlce7gMgzbw_8yvu52okfhlLABs8lOBLJCkJuS0dha51RtDb-COCDkog2nNISB71ucX0ZNU_8WLJsxQ_tHxyBER0nkcOz2A0tnB-TDUYMy4hhfKEyPGC00RPiLhm5DWikwvCzhmQ4GTEnHMp2qxnKkqGPIpaktYl1IjA9D7lOgNPV0YP97X7t6BWnsUXRruW7QR9Qf3H6aqLPNDNFuZvUPDONZOqwE1ngaqxU2rtCD9bG-W4bU2WyjNBLP-v4w
 Login Succeeded
 $ sudo docker tag nginx-hangman 172.30.1.1:5000/myproject/nginx-hangman
-$ sudo docker tag hangman 172.30.1.1:5000/myproject/hangman
-$ sudo docker push 172.30.1.1:5000/myproject/hangman
-The push refers to a repository [172.30.1.1:5000/myproject/hangman]
+$ sudo docker push 172.30.1.1:5000/myproject/nginx-hangman
+The push refers to a repository [172.30.1.1:5000/myproject/nginx-hangman]
 bc5a59b6f00e: Pushed
 299a04a9366f: Pushed
 fb8582c7ffd0: Pushed
 279bfd6c7049: Pushed
 f5bd5357a1de: Pushed
 latest: digest: sha256:e1e386aa3b6fa0776d0d2122357aef711cb437ff28e15af9eab8e334bc112d3d size: 10567
-$ sudo docker tag nginx-hangman 172.30.1.1:5000/myproject/nginx-hangman
 $ sudo docker tag hangman 172.30.1.1:5000/myproject/hangman
 $ sudo docker push 172.30.1.1:5000/myproject/hangman
 The push refers to a repository [172.30.1.1:5000/myproject/hangman]
@@ -103,14 +101,6 @@ The push refers to a repository [172.30.1.1:5000/myproject/hangman]
 279bfd6c7049: Pushed
 f5bd5357a1de: Pushed
 latest: digest: sha256:c2983327ee0422b8199fb773d9998e8ef4e81b1a03b1e1034e8756313435e302 size: 10373
-$ sudo docker push 172.30.1.1:5000/myproject/nginx-hangman
-The push refers to a repository [172.30.1.1:5000/myproject/nginx-hangman]
-e00e055841e0: Pushed
-f9c6cbec40e4: Pushed
-a552ca691e49: Pushed
-7487bf0353a7: Pushed
-8781ec54ba04: Pushed
-latest: digest: sha256:6bfbb2474196c5471fce67e779d7e97ffc4f866465387120cffde5d3e3c143ef size: 9885
 ```
 
 You can now return to the other terminal and see the image streams:
