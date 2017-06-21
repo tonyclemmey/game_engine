@@ -15,10 +15,14 @@ spec:
       automatic: true
       containerNames:
         - hangman
-        - nginx-hangman
       from:
         kind: ImageStreamTag
         name: hangman:latest
+  - type: ImageChange
+    imageChangeParams:
+      automatic: true
+      containerNames:
+        - nginx-hangman
       from:
         kind: ImageStreamTag
         name: nginx-hangman:latest
@@ -39,6 +43,9 @@ spec:
         resources: {}
         terminationMessagePath: "/dev/termination-log"
         imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 8080
+            protocol: "TCP"
         capabilities: {}
       - name: hangman
         image: 172.30.1.1:5000/myproject/hangman:latest
@@ -46,6 +53,7 @@ spec:
         terminationMessagePath: "/dev/termination-log"
         imagePullPolicy: IfNotPresent
         capabilities: {}
+      
       securityContext: {}
       restartPolicy: Always
       dnsPolicy: ClusterFirst
