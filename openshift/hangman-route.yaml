@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Route
+metadata:
+  creationTimestamp: null
+  labels:
+    app: hangman
+  name: hangman
+spec:
+  host: hangman.example.com
+  to:
+    kind: Service
+    name: hangman
+    weight: 100
+  wildcardPolicy: None

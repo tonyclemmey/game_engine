@@ -1,0 +1,53 @@
+---
+kind: DeploymentConfig
+apiVersion: v1
+metadata:
+  name: hangman
+  app: hangman
+spec:
+  strategy:
+    type: Recreate
+    resources: {}
+  triggers:
+  - type: ConfigChange
+  - type: ImageChange
+    imageChangeParams:
+      automatic: true
+      containerNames:
+        - hangman
+        - nginx-hangman
+      from:
+        kind: ImageStreamTag
+        name: hangman:latest
+      from:
+        kind: ImageStreamTag
+        name: nginx-hangman:latest
+  replicas: 1
+  selector:
+    name: hangman
+    app: hangman
+  template:
+    metadata:
+      creationTimestamp: 
+      labels:
+        name: hangman
+        app: hangman
+    spec:
+      containers:
+      - name: nginx-hangman
+        image: 172.30.1.1:5000/myproject/nginx-hangman:latest
+        resources: {}
+        terminationMessagePath: "/dev/termination-log"
+        imagePullPolicy: IfNotPresent
+        capabilities: {}
+      - name: hangman
+        image: 172.30.1.1:5000/myproject/hangman:latest
+        resources: {}
+        terminationMessagePath: "/dev/termination-log"
+        imagePullPolicy: IfNotPresent
+        capabilities: {}
+      securityContext: {}
+      restartPolicy: Always
+      dnsPolicy: ClusterFirst
+
+
