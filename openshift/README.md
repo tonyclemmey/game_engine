@@ -116,7 +116,7 @@ docker-registry   docker-registry-default.192.168.99.100.nip.io             dock
 ```
 [vagrant@rhel7-vbox ~]$ sudo bash -c "echo 192.168.99.100 hangman.example.com >> /etc/hosts"
 [vagrant@rhel7-vbox ~]$ sudo bash -c "echo 192.168.99.100 docker-registry-default.192.168.99.100.nip.io >> /etc/hosts"
-[vagrant@rhel7-vbox ~]$ sudo sed -i "s|#\ INSECURE_REGISTRY=.*|INSECURE_REGISTRY='--insecure-registry docker-registry-default.192.168.99.101.nip.io:80'|" /etc/sysconfig/docker
+[vagrant@rhel7-vbox ~]$ sudo sed -i "s|#\ INSECURE_REGISTRY=.*|INSECURE_REGISTRY='--insecure-registry docker-registry-default.192.168.99.100.nip.io:80'|" /etc/sysconfig/docker
 [vagrant@rhel7-vbox ~]$ sudo systemctl restart docker
 [vagrant@rhel7-vbox ~]$ sudo docker login docker-registry-default.192.168.99.100.nip.io:80 -u pusher -p eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJteXByb2plY3QiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlY3JldC5uYW1lIjoicHVzaGVyLXRva2VuLTdtMTltIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6InB1c2hlciIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjI4NWJhMjYwLTVlNWMtMTFlNy1hYTVlLTA4MDAyNzhhMzI0OSIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpteXByb2plY3Q6cHVzaGVyIn0.Es_PuSMoeteFD4oodN22UI7e9VBJbFLJsROye4aGxA2dn5_0glJkozYc92cIVwIZXdLFblSloB23rzllOf3_NCKC2wUcIvPkM1iKwuDRmz7n6wXUR3TzDJKMN8gu6lFwGY5WQlfAJDe9Vvfv8XnGnok_hPQ-os1pNQHPMKe5TCkb8RmwkTvAbeczK4QDlKhaYImdKFSMG8x3JbCpNRWY4N4I56tvgdPWzwCgFrfKH732tQbAW058e5vv0kzMHDw-so-2qE-nkZlqKu5zMGIX46jYUbffLumAqtu0rDoe9dDPmc_QkRpCLcMJJJ9HW_fp0kwDhIfQD0Fqrl60ONlGbQ
 Login Succeeded
