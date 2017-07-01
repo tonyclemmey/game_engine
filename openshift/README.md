@@ -23,14 +23,14 @@ You are now ready to bring up the development environment for this tutorial.
 Change to this directory and bring up the CDK. `./minishift_boot.sh` Please follow 
 the prompts and you will be left with a usable CDK.
 
-1. Bring up the CDK from this directory in the repository.
-2. Export the admin credentials.
-3. Change to the root directory of this repository and issue `vagrant up`.
-4. `vagrant ssh`, import OpenShift config, `cd /vagrant`, and create the environment file.
-5. Build the base Docker image.
-6. Build the hangman image using a builder image and the base image you just
-   created.
-7. Build the nginx-hangman image.
+1.  Bring up the CDK from this directory in the repository.
+2.  Export the admin credentials.
+3.  Change to the root directory of this repository and issue `vagrant up`.
+4.  `vagrant ssh`, import OpenShift config, `cd /vagrant`, and create the environment file.
+5.  Build the base Docker image.
+6.  Build the hangman image using a builder image and the base image you just
+    created.
+7.  Build the nginx-hangman image.
 
 ```
 $ ./minishift_boot.sh
@@ -63,9 +63,9 @@ $ vagrant ssh
 ...
 ```
 
-7. Using the `oc` client, create a service account.
-8. Grant the service account privileges to push images
-9. Export a token for use to login with `docker login`
+8.  Using the `oc` client, create a service account.
+9.  Grant the service account privileges to push images
+10. Export a token for use to login with `docker login`
 
 ```
 [vagrant@rhel7-vbox vagrant]$ oc create serviceaccount pusher -n myproject
@@ -107,11 +107,11 @@ NAME              HOST/PORT                                       PATH      SERV
 docker-registry   docker-registry-default.192.168.99.100.nip.io             docker-registry   5000-tcp                 None
 ```
 
-10. Create relevant /etc/hosts file entries for the registry and app.
-11. Mark the registry as insecure so it will not be rejected. 
-12. Login to Docker
-13. Tag the images
-14. Push to the OpenShift Docker registry
+11. Create relevant /etc/hosts file entries for the registry and app.
+12. Mark the registry as insecure so it will not be rejected. 
+13. Login to Docker
+14. Tag the images
+15. Push to the OpenShift Docker registry
 
 ```
 [vagrant@rhel7-vbox vagrant]$ sudo bash -c "echo 192.168.99.100 hangman.example.com >> /etc/hosts"
@@ -145,7 +145,7 @@ latest: digest: sha256:a07f3807f9400b1fe7388035a3bf552c046726dd7ab1da2023495445e
 You can now return to the other terminal and see the image streams:
 
 ```
-$ oc get is
+[vagrant@rhel7-vbox vagrant]$ oc get is
 NAME            DOCKER REPO                               TAGS      UPDATED
 hangman         172.30.1.1:5000/myproject/hangman         latest    About a minute ago
 nginx-hangman   172.30.1.1:5000/myproject/nginx-hangman   latest    50 seconds ago
@@ -156,7 +156,7 @@ please allow the restricted scc to run as any user.
 https://access.redhat.com/articles/1493353
 
 ```
-$ oc edit scc restricted
+[vagrant@rhel7-vbox vagrant]$ oc edit scc restricted
 Change the runAsUser.Type strategy to RunAsAny.
 ```
 
@@ -164,7 +164,7 @@ Create the deploymentconfig, the service and export with a route for use
 externally.
 
 ```
-$ oc create -f hangman-dc.yaml
-$ oc create -f hangman-svc.yaml
-$ oc create -f hangman-route.yaml
+[vagrant@rhel7-vbox vagrant]$ oc create -f hangman-dc.yaml
+[vagrant@rhel7-vbox vagrant]$ oc create -f hangman-svc.yaml
+[vagrant@rhel7-vbox vagrant]$ oc create -f hangman-route.yaml
 ```
