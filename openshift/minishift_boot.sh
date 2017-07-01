@@ -15,8 +15,9 @@ export S2ILINK="https://github.com/openshift/source-to-image/releases/download/v
 # Link to Go
 export GOLINK="https://storage.googleapis.com/golang/go1.8.3.linux-amd64.tar.gz"
 
-# Change this to your Red Hat account login
-export MINISHIFT_USERNAME="jhcook@secnix.com"
+echo "Please enter your RHDS Username: "
+read -r MINISHIFT_USERNAME_INPUT
+export MINISHIFT_USERNAME=$MINISHIFT_USERNAME_INPUT
 echo "Please enter your RHDS Password: "
 read -sr MINISHIFT_PASSWORD_INPUT
 export MINISHIFT_PASSWORD=$MINISHIFT_PASSWORD_INPUT
