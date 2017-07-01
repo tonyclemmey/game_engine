@@ -43,24 +43,24 @@ $ cd ..
 $ vagrant up
 ...
 $ vagrant ssh
-[vagrant@rhel7-vbox vagrant]$ cp /vagrant/openshift/admin.kubeconfig ~/.kube/config
-[vagrant@rhel7-vbox vagrant]$ oc expose svc/docker-registry -n default --hostname docker-registry.example.com
-...
-[vagrant@rhel7-vbox vagrant]$ cd /vagrant
+[vagrant@rhel7-vbox ~]$ mkdir .kube
+[vagrant@rhel7-vbox ~]$ cp /vagrant/openshift/admin.kubeconfig ~/.kube/config
+[vagrant@rhel7-vbox ~]$ cd /vagrant
 [vagrant@rhel7-vbox vagrant]$ cat - > .s2i/environment << __EOF__
 > __AK__=<replace with your app key>
 > __AID__=<replace with your app id>
 > __EOF__
 [vagrant@rhel7-vbox vagrant]$ cd docker/hangman
-[vagrant@rhel7-vbox vagrant]$ sudo docker build --rm -t base-rhel7 .
+[vagrant@rhel7-vbox hangman]$ sudo docker build --rm -t base-rhel7 .
 ...
-[vagrant@rhel7-vbox vagrant]$ cd ../..
-[vagrant@rhel7-vbox vagrant]$ s2i build . golang:1.8 hangman --runtime-image base-rhel7 --runtime-artifact \
+[vagrant@rhel7-vbox hangman]$ cd ../..
+[vagrant@rhel7-vbox vagrant]$ sudo s2i build . golang:1.8 hangman --runtime-image base-rhel7 --runtime-artifact \
 /tmp/src/hangman_engine -s file://.s2i/bin --environment-file .s2i/environment
 ...
 [vagrant@rhel7-vbox vagrant]$ cd docker/nginx
-[vagrant@rhel7-vbox vagrant]$ sudo docker build --rm -t nginx-hangman .
+[vagrant@rhel7-vbox nginx]$ sudo docker build --rm -t nginx-hangman .
 ...
+[vagrant@rhel7-vbox nginx]$ cd
 ```
 
 8.  Using the `oc` client, create a service account.
@@ -68,11 +68,11 @@ $ vagrant ssh
 10. Export a token for use to login with `docker login`
 
 ```
-[vagrant@rhel7-vbox vagrant]$ oc create serviceaccount pusher -n myproject
+[vagrant@rhel7-vbox ~]$ oc create serviceaccount pusher -n myproject
 ...
-[vagrant@rhel7-vbox vagrant]$ oc policy add-role-to-user system:image-builder system:serviceaccount:myproject:pusher
+[vagrant@rhel7-vbox ~]$ oc policy add-role-to-user system:image-builder system:serviceaccount:myproject:pusher -n myproject
 role "system:image-builder" added: "system:serviceaccount:myproject:pusher"
-[vagrant@rhel7-vbox vagrant]$ oc describe sa pusher -n myproject
+[vagrant@rhel7-vbox ~]$ oc describe sa pusher -n myproject
 Name:        pusher
 Namespace:    myproject
 Labels:        <none>
@@ -84,7 +84,7 @@ Mountable secrets:     pusher-dockercfg-69v6q
 
 Tokens:                pusher-token-g7ssq
                        pusher-token-kd2q3
-[vagrant@rhel7-vbox vagrant]$ oc describe secret pusher-token-g7ssq -n myproject
+[vagrant@rhel7-vbox ~]$ oc describe secret pusher-token-g7ssq -n myproject
 Name:        pusher-token-g7ssq
 Namespace:    myproject
 Labels:        <none>
@@ -100,9 +100,9 @@ service-ca.crt:    2186 bytes
 token:        eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJteXByb2plY3QiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlY3JldC5uYW1lIjoicHVzaGVyLXRva2VuLTdtMTltIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6InB1c2hlciIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjI4NWJhMjYwLTVlNWMtMTFlNy1hYTVlLTA4MDAyNzhhMzI0OSIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpteXByb2plY3Q6cHVzaGVyIn0.Es_PuSMoeteFD4oodN22UI7e9VBJbFLJsROye4aGxA2dn5_0glJkozYc92cIVwIZXdLFblSloB23rzllOf3_NCKC2wUcIvPkM1iKwuDRmz7n6wXUR3TzDJKMN8gu6lFwGY5WQlfAJDe9Vvfv8XnGnok_hPQ-os1pNQHPMKe5TCkb8RmwkTvAbeczK4QDlKhaYImdKFSMG8x3JbCpNRWY4N4I56tvgdPWzwCgFrfKH732tQbAW058e5vv0kzMHDw-so-2qE-nkZlqKu5zMGIX46jYUbffLumAqtu0rDoe9dDPmc_QkRpCLcMJJJ9HW_fp0kwDhIfQD0Fqrl60ONlGbQ
 ca.crt:        1070 bytes
 namespace:    9 bytes
-[vagrant@rhel7-vbox vagrant]$ oc expose svc/docker-registry -n default
-...
-[vagrant@rhel7-vbox vagrant]$ oc get route/docker-registry -n default
+[vagrant@rhel7-vbox ~]$ oc expose svc/docker-registry -n default
+route "docker-registry" exposed
+[vagrant@rhel7-vbox ~]$ oc get route/docker-registry -n default
 NAME              HOST/PORT                                       PATH      SERVICES          PORT       TERMINATION   WILDCARD
 docker-registry   docker-registry-default.192.168.99.100.nip.io             docker-registry   5000-tcp                 None
 ```
@@ -114,15 +114,15 @@ docker-registry   docker-registry-default.192.168.99.100.nip.io             dock
 15. Push to the OpenShift Docker registry
 
 ```
-[vagrant@rhel7-vbox vagrant]$ sudo bash -c "echo 192.168.99.100 hangman.example.com >> /etc/hosts"
-[vagrant@rhel7-vbox vagrant]$ sudo bash -c "echo 192.168.99.100 docker-registry-default.192.168.99.100.nip.io >> /etc/hosts"
-[vagrant@rhel7-vbox vagrant]$ sudo sed -i 's|# INSECURE_REGISTRY=.*|INSECURE_REGISTRY=docker-registry-default.192.168.99.100.nip.io:80|' /etc/sysconfig/docker
-[vagrant@rhel7-vbox vagrant]$ sudo systemctl restart docker
-[vagrant@rhel7-vbox vagrant]$ sudo docker login docker-registry-default.192.168.99.100.nip.io:80 -u pusher -p eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJteXByb2plY3QiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlY3JldC5uYW1lIjoicHVzaGVyLXRva2VuLTdtMTltIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6InB1c2hlciIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjI4NWJhMjYwLTVlNWMtMTFlNy1hYTVlLTA4MDAyNzhhMzI0OSIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpteXByb2plY3Q6cHVzaGVyIn0.Es_PuSMoeteFD4oodN22UI7e9VBJbFLJsROye4aGxA2dn5_0glJkozYc92cIVwIZXdLFblSloB23rzllOf3_NCKC2wUcIvPkM1iKwuDRmz7n6wXUR3TzDJKMN8gu6lFwGY5WQlfAJDe9Vvfv8XnGnok_hPQ-os1pNQHPMKe5TCkb8RmwkTvAbeczK4QDlKhaYImdKFSMG8x3JbCpNRWY4N4I56tvgdPWzwCgFrfKH732tQbAW058e5vv0kzMHDw-so-2qE-nkZlqKu5zMGIX46jYUbffLumAqtu0rDoe9dDPmc_QkRpCLcMJJJ9HW_fp0kwDhIfQD0Fqrl60ONlGbQ
+[vagrant@rhel7-vbox ~]$ sudo bash -c "echo 192.168.99.100 hangman.example.com >> /etc/hosts"
+[vagrant@rhel7-vbox ~]$ sudo bash -c "echo 192.168.99.100 docker-registry-default.192.168.99.100.nip.io >> /etc/hosts"
+[vagrant@rhel7-vbox ~]$ sudo sed -i "s|#\ INSECURE_REGISTRY=.*|INSECURE_REGISTRY='--insecure-registry docker-registry-default.192.168.99.101.nip.io:80'|" /etc/sysconfig/docker
+[vagrant@rhel7-vbox ~]$ sudo systemctl restart docker
+[vagrant@rhel7-vbox ~]$ sudo docker login docker-registry-default.192.168.99.100.nip.io:80 -u pusher -p eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJteXByb2plY3QiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlY3JldC5uYW1lIjoicHVzaGVyLXRva2VuLTdtMTltIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6InB1c2hlciIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjI4NWJhMjYwLTVlNWMtMTFlNy1hYTVlLTA4MDAyNzhhMzI0OSIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpteXByb2plY3Q6cHVzaGVyIn0.Es_PuSMoeteFD4oodN22UI7e9VBJbFLJsROye4aGxA2dn5_0glJkozYc92cIVwIZXdLFblSloB23rzllOf3_NCKC2wUcIvPkM1iKwuDRmz7n6wXUR3TzDJKMN8gu6lFwGY5WQlfAJDe9Vvfv8XnGnok_hPQ-os1pNQHPMKe5TCkb8RmwkTvAbeczK4QDlKhaYImdKFSMG8x3JbCpNRWY4N4I56tvgdPWzwCgFrfKH732tQbAW058e5vv0kzMHDw-so-2qE-nkZlqKu5zMGIX46jYUbffLumAqtu0rDoe9dDPmc_QkRpCLcMJJJ9HW_fp0kwDhIfQD0Fqrl60ONlGbQ
 Login Succeeded
-[vagrant@rhel7-vbox vagrant]$ sudo docker tag hangman docker-registry-default.192.168.99.100.nip.io:80/myproject/hangman
-[vagrant@rhel7-vbox vagrant]$ sudo docker tag nginx-hangman docker-registry-default.192.168.99.100.nip.io:80/myproject/nginx-hangman
-[vagrant@rhel7-vbox vagrant]$ sudo docker push docker-registry-default.192.168.99.100.nip.io:80/myproject/hangman
+[vagrant@rhel7-vbox ~]$ sudo docker tag hangman docker-registry-default.192.168.99.100.nip.io:80/myproject/hangman
+[vagrant@rhel7-vbox ~]$ sudo docker tag nginx-hangman docker-registry-default.192.168.99.100.nip.io:80/myproject/nginx-hangman
+[vagrant@rhel7-vbox ~]$ sudo docker push docker-registry-default.192.168.99.100.nip.io:80/myproject/hangman
 The push refers to a repository [docker-registry-default.192.168.99.100.nip.io:80/myproject/hangman]
 c3ae2c8497c4: Pushed
 5a43b655a19d: Pushed
@@ -130,7 +130,7 @@ ce6d7c376e5b: Pushed
 86888f0aea6d: Pushed
 dda6e8dfdcf7: Pushed
 latest: digest: sha256:e7f633d0b2175b5ea2b841a8cd1337df58d47413beedcbe39f1aa2128b4e67c5 size: 9646
-[vagrant@rhel7-vbox vagrant]$ sudo docker push docker-registry-default.192.168.99.100.nip.io:80/myproject/nginx-hangman
+[vagrant@rhel7-vbox ~]$ sudo docker push docker-registry-default.192.168.99.100.nip.io:80/myproject/nginx-hangman
 The push refers to a repository [docker-registry-default.192.168.99.100.nip.io:80/myproject/nginx-hangman]
 eccfc2e529b9: Pushed
 fbe8eaa10c08: Pushed
@@ -145,7 +145,7 @@ latest: digest: sha256:a07f3807f9400b1fe7388035a3bf552c046726dd7ab1da2023495445e
 You can now return to the other terminal and see the image streams:
 
 ```
-[vagrant@rhel7-vbox vagrant]$ oc get is
+[vagrant@rhel7-vbox ~]$ oc get is
 NAME            DOCKER REPO                               TAGS      UPDATED
 hangman         172.30.1.1:5000/myproject/hangman         latest    About a minute ago
 nginx-hangman   172.30.1.1:5000/myproject/nginx-hangman   latest    50 seconds ago
@@ -156,7 +156,7 @@ please allow the restricted scc to run as any user.
 https://access.redhat.com/articles/1493353
 
 ```
-[vagrant@rhel7-vbox vagrant]$ oc edit scc restricted
+[vagrant@rhel7-vbox ~]$ oc edit scc restricted
 Change the runAsUser.Type strategy to RunAsAny.
 ```
 
@@ -164,7 +164,8 @@ Create the deploymentconfig, the service and export with a route for use
 externally.
 
 ```
-[vagrant@rhel7-vbox vagrant]$ oc create -f hangman-dc.yaml
-[vagrant@rhel7-vbox vagrant]$ oc create -f hangman-svc.yaml
-[vagrant@rhel7-vbox vagrant]$ oc create -f hangman-route.yaml
+[vagrant@rhel7-vbox ~]$ cd /vagrant/openshift
+[vagrant@rhel7-vbox openshift]$ oc create -f hangman-dc.yaml -n myproject
+[vagrant@rhel7-vbox openshift]$ oc create -f hangman-svc.yaml -n myproject
+[vagrant@rhel7-vbox openshift]$ oc create -f hangman-route.yaml -n myproject
 ```
