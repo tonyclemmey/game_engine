@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.4
+#!/usr/bin/env python3
 
 import sys
 
@@ -8,8 +8,7 @@ except ImportError as e:
     print(e)
     sys.exit(1)
 
-url = 'http://richmond.cookgetsitdone.com/hangman'
-#url = 'http://localhost:3000/hangman'
+url = 'http://hangman.example.com/hangman'
 
 hdrs = { 'content-type': 'application/json'}
 

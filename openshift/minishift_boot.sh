@@ -10,7 +10,7 @@
 # Author: Justin Cook <jhcook@secnix.com>
 
 # Link to S2I
-export S2ILINK="https://github.com/openshift/source-to-image/releases/download/v1.1.6/source-to-image-v1.1.6-f519129-linux-amd64.tar.gz"
+export S2ILINK="https://github.com/openshift/source-to-image/releases/download/v1.1.7/source-to-image-v1.1.7-226afa1-linux-amd64.tar.gz"
 
 # Link to Go
 export GOLINK="https://storage.googleapis.com/golang/go1.8.3.linux-amd64.tar.gz"
@@ -51,10 +51,10 @@ sudo chmod o+rwx /opt
 # Change to /tmp, download packages, extract and clean up since we have limited
 # dm space.
 cd /tmp
-wget $S2ILINK
-sudo tar zxvf `basename $S2ILINK` -C /usr/bin/ ./s2i > s2iinstall.out
-wget $GOLINK
-sudo tar zxvf `basename $GOLINK` -C /opt > goinstall.out
+wget $S2ILINK > /tmp/s2iinstall.out
+sudo tar zxvf `basename $S2ILINK` -C /usr/bin/ ./s2i >> /tmp/s2iinstall.out
+wget $GOLINK > /tmp/goinstall.out
+sudo tar zxvf `basename $GOLINK` -C /opt >> /tmp/goinstall.out
 
 # Clean up after ourselves
 rm -fr * 2>/dev/null || /bin/true
