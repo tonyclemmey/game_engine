@@ -51,8 +51,9 @@ $("#letter").keyup(function(event){
 
 if ("WebSocket" in window) {
     url = "hangman.example.com/wshangman";
-    var isSafari = navigator.vendor.indexOf("Apple")==0 && /\sSafari\//.test(navigator.userAgent);
-    wsocket = isSafari ? new WebSocket("ws://" + url) : new WebSocket("wss://" + url);
+    //var isSafari = navigator.vendor.indexOf("Apple")==0 && /\sSafari\//.test(navigator.userAgent);
+    //wsocket = isSafari ? new WebSocket("ws://" + url) : new WebSocket("wss://" + url);
+    wsocket = new WebSocket("ws://" + url);
     wsocket.onopen = function() {
         newGame();
     };
