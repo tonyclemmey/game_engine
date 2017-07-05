@@ -29,6 +29,8 @@ export MINISHIFT_PASSWORD=$MINISHIFT_PASSWORD_INPUT
 #minishift start --vm-driver xhyve --insecure-registry 10.0.0.1
 minishift start --vm-driver virtualbox
 
+# This is unnecessary, but included to make the CDK usable as a single entity
+# to build images.
 minishift ssh << __EOF__
 # Backoff and try a couple times if yum install fails
 counter=0
